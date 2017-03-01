@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">YouTube AdAway</string>
+    <string name="module_active">is active!</string>
+    <string name="module_inactive">is NOT active!\nMake sure it is enabled on Xposed Installer.\nIf it is already checked, uncheck and recheck it again and REBOOT.</string>
+    <string name="enable_verbose_logging">Enable verbose logging</string>
+    <string name="donate">Donate</string>
+    <string name="no_thanks">No thanks</string>
+
+</resources>
