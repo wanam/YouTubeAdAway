@@ -19,7 +19,6 @@ public class XYoutube {
 
 	private static ClassLoader classLoader;
 	private static XSharedPreferences xPrefs;
-	private static boolean isAdResponseHooked = false;
 	private static boolean isAdWrapperHooked = false;
 	private static boolean isDBHooked = false;
 
@@ -31,7 +30,7 @@ public class XYoutube {
 
 		try {
 			XYoutube.xPrefs.reload();
-			logError("YouTube: " + packageName + " " + version + " loaded!");
+			log("YouTube: " + packageName + " " + version + " loaded!");
 			Class<?> mVastAd = XposedHelpers.findClass(
 					"com.google.android.libraries.youtube.innertube.model.ads.VastAd", classLoader);
 			Class<?> mClock = XposedHelpers.findClass("com.google.android.libraries.youtube.common.util.Clock",
@@ -42,16 +41,15 @@ public class XYoutube {
 
 			XposedHelpers.findAndHookMethod(mVastAd, "hasExpired", mClock, XC_MethodReplacement.returnConstant(true));
 
-			logError("YouTube AdAway: Non proguarded successful hook!");
+			log("YouTube AdAway: Non proguarded successful hook!");
 		} catch (Throwable e) {
 			try {
-				logError("YouTube AdAway " + moduleVersion + ": Trying brute force way...");
-				isAdResponseHooked = false;
+				log("YouTube AdAway " + moduleVersion + ": Trying brute force way...");
 				isAdWrapperHooked = false;
 				isDBHooked = false;
 				new BFAsync().execute();
 			} catch (Throwable t) {
-				logError(t);
+				log(t);
 			}
 		}
 
@@ -69,7 +67,7 @@ public class XYoutube {
 			XposedBridge.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
 
 		} catch (Throwable t) {
-			logError(t);
+			log(t);
 			try {
 
 				vastAd = XposedHelpers.findClass("com.google.android.apps.youtube.datalib.legacy.model.VastAd",
@@ -79,7 +77,7 @@ public class XYoutube {
 				XposedBridge.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
 
 			} catch (Throwable e1) {
-				logError(e1);
+				log(e1);
 				try {
 					vastAd = XposedHelpers.findClass("com.google.android.apps.youtube.core.model.VastAd", classLoader);
 
@@ -89,7 +87,7 @@ public class XYoutube {
 					XposedBridge
 							.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
 				} catch (Throwable e2) {
-					logError(e2);
+					log(e2);
 				}
 			}
 		}
@@ -110,7 +108,7 @@ public class XYoutube {
 			});
 
 		} catch (Throwable e1) {
-			logError(e1);
+			log(e1);
 			try {
 				vmapAdBreak = XposedHelpers.findClass(
 						"com.google.android.apps.youtube.datalib.legacy.model.VmapAdBreak", classLoader);
@@ -126,7 +124,7 @@ public class XYoutube {
 				});
 
 			} catch (Throwable e2) {
-				logError(e2);
+				log(e2);
 				try {
 					vmapAdBreak = XposedHelpers.findClass("com.google.android.apps.youtube.core.model.VmapAdBreak",
 							classLoader);
@@ -146,7 +144,7 @@ public class XYoutube {
 					});
 
 				} catch (Throwable e3) {
-					logError(e3);
+					log(e3);
 				}
 			}
 
@@ -154,13 +152,13 @@ public class XYoutube {
 
 	}
 
-	private static void logError(Throwable e) {
+	private static void log(Throwable e) {
 		if (XYoutube.xPrefs.getBoolean("enableLogs", true)) {
 			XposedBridge.log(e);
 		}
 	}
 
-	private static void logError(String e) {
+	private static void log(String e) {
 		if (XYoutube.xPrefs.getBoolean("enableLogs", true)) {
 			XposedBridge.log(e);
 		}
@@ -207,21 +205,6 @@ public class XYoutube {
 			}
 
 			try {
-				if (!isAdResponseHooked
-						&& XposedHelpers.findFirstFieldByExactType(classObj, Pattern.class).getName().equals("a")
-						&& XposedHelpers.findFirstFieldByExactType(classObj, int.class).getName().equals("d")) {
-
-					Method f = XposedHelpers.findMethodExact(classObj, "f");
-					if (f.getReturnType().equals(boolean.class)) {
-						XposedBridge.hookMethod(f, XC_MethodReplacement.returnConstant(Boolean.TRUE));
-						isAdResponseHooked = true;
-						logError("YouTube AdAway: Successfully hooked ad response: " + classObj.getName());
-					}
-				}
-			} catch (Throwable e) {
-			}
-
-			try {
 				if (!isDBHooked
 						&& XposedHelpers.findFirstFieldByExactType(classObj, String[].class).getName().equals("b")
 						&& XposedHelpers.findMethodExact(classObj, "a").getReturnType().equals(List.class)) {
@@ -262,7 +245,7 @@ public class XYoutube {
 						};
 					});
 
-					logError("YouTube AdAway: Successfully hooked ads DB: " + classObj.getName());
+					log("YouTube AdAway: Successfully hooked ads DB: " + classObj.getName());
 				}
 			} catch (Throwable e) {
 			}
@@ -271,7 +254,7 @@ public class XYoutube {
 				if (!isAdWrapperHooked
 						&& XposedHelpers.findFirstFieldByExactType(classObj, Parcelable.Creator.class).getName()
 								.equals("CREATOR")
-						&& XposedHelpers.findFirstFieldByExactType(classObj, List.class).getName().equals("A")) {
+						&& XposedHelpers.findMethodExact(classObj, "A").getReturnType().equals(List.class)) {
 					isAdWrapperHooked = true;
 					try {
 						XposedBridge.hookAllConstructors(classObj, new XC_MethodHook() {
@@ -284,10 +267,10 @@ public class XYoutube {
 							}
 						});
 
-						logError("YouTube AdAway: Successfully hooked " + classObj.getName() + " constructor!");
+						log("YouTube AdAway: Successfully hooked " + classObj.getName() + " constructor!");
 					} catch (Throwable e) {
-						logError("YouTube AdAway: Failed to hook " + classObj.getName() + " constructor!");
-						logError(e);
+						log("YouTube AdAway: Failed to hook " + classObj.getName() + " constructor!");
+						log(e);
 					}
 
 					try {
@@ -322,22 +305,22 @@ public class XYoutube {
 						}
 
 					} catch (Throwable e) {
-						logError("YouTube AdAway: Failed to hook " + classObj.getName() + " methods!");
-						logError(e);
+						log("YouTube AdAway: Failed to hook " + classObj.getName() + " methods!");
+						log(e);
 					}
 
 				}
 
 			} catch (Throwable e) {
 			}
-			return isAdWrapperHooked && isAdResponseHooked && isDBHooked;
+			return isAdWrapperHooked && isDBHooked;
 		}
 
 		@Override
 		protected void onPostExecute(Boolean found) {
 
 			if (!found) {
-				logError("YouTube AdAway: brute force failed! Class/Param sequence not found");
+				log("YouTube AdAway: brute force failed! Class/Param sequence not found");
 				disableYouTubeAds(XYoutube.classLoader);
 			}
 		}
