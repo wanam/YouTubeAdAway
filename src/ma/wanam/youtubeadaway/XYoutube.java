@@ -3,7 +3,6 @@ package ma.wanam.youtubeadaway;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import android.database.sqlite.SQLiteDatabase;
@@ -17,158 +16,60 @@ import de.robv.android.xposed.XposedHelpers;
 
 public class XYoutube {
 
-	private static ClassLoader classLoader;
-	private static XSharedPreferences xPrefs;
-	private static boolean isAdWrapperHooked = false;
-	private static boolean isDBHooked = false;
+	private ClassLoader classLoader;
+	private XSharedPreferences xPrefs;
 
-	public static void doHook(ClassLoader classLoader, String version, String moduleVersion, String packageName,
-			XSharedPreferences prefs) {
-
-		XYoutube.classLoader = classLoader;
-		XYoutube.xPrefs = prefs;
-
-		try {
-			XYoutube.xPrefs.reload();
-			log("YouTube: " + packageName + " " + version + " loaded!");
-			Class<?> mVastAd = XposedHelpers.findClass(
-					"com.google.android.libraries.youtube.innertube.model.ads.VastAd", classLoader);
-			Class<?> mClock = XposedHelpers.findClass("com.google.android.libraries.youtube.common.util.Clock",
-					classLoader);
-
-			XposedHelpers
-					.findAndHookMethod(mVastAd, "shouldPlayAd", mClock, XC_MethodReplacement.returnConstant(false));
-
-			XposedHelpers.findAndHookMethod(mVastAd, "hasExpired", mClock, XC_MethodReplacement.returnConstant(true));
-
-			log("YouTube AdAway: Non proguarded successful hook!");
-		} catch (Throwable e) {
-			try {
-				log("YouTube AdAway " + moduleVersion + ": Trying brute force way...");
-				isAdWrapperHooked = false;
-				isDBHooked = false;
-				new BFAsync().execute();
-			} catch (Throwable t) {
-				log(t);
-			}
-		}
-
+	public XYoutube(ClassLoader classLoader, XSharedPreferences xPrefs) {
+		this.classLoader = classLoader;
+		this.xPrefs = xPrefs;
 	}
 
-	private static void disableYouTubeAds(ClassLoader classLoader) {
-
-		Class<?> vastAd = null, vmapAdBreak = null;
+	public void doHook(String version, String moduleVersion, String packageName) {
 
 		try {
-
-			vastAd = XposedHelpers.findClass("com.google.android.apps.youtube.datalib.ads.model.VastAd", classLoader);
-			XposedBridge.hookAllMethods(vastAd, "shouldPlayAd", XC_MethodReplacement.returnConstant(Boolean.FALSE));
-
-			XposedBridge.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
-
+			xPrefs.reload();
+			log("YouTube: " + packageName + " " + version + " loaded!");
+			log("YouTube AdAway " + moduleVersion + ": Trying brute force way...");
+			new BFAsync().execute(new Params(classLoader, xPrefs));
 		} catch (Throwable t) {
 			log(t);
-			try {
-
-				vastAd = XposedHelpers.findClass("com.google.android.apps.youtube.datalib.legacy.model.VastAd",
-						classLoader);
-				XposedBridge.hookAllMethods(vastAd, "shouldPlayAd", XC_MethodReplacement.returnConstant(Boolean.FALSE));
-
-				XposedBridge.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
-
-			} catch (Throwable e1) {
-				log(e1);
-				try {
-					vastAd = XposedHelpers.findClass("com.google.android.apps.youtube.core.model.VastAd", classLoader);
-
-					XposedBridge.hookAllMethods(vastAd, "shouldPlayAd",
-							XC_MethodReplacement.returnConstant(Boolean.FALSE));
-
-					XposedBridge
-							.hookAllMethods(vastAd, "hasExpired", XC_MethodReplacement.returnConstant(Boolean.TRUE));
-				} catch (Throwable e2) {
-					log(e2);
-				}
-			}
 		}
-
-		try {
-
-			vmapAdBreak = XposedHelpers.findClass("com.google.android.apps.youtube.datalib.ads.model.VmapAdBreak",
-					classLoader);
-			XposedHelpers.findAndHookMethod(vmapAdBreak, "isDisplayAdAllowed",
-					XC_MethodReplacement.returnConstant(Boolean.FALSE));
-
-			XposedHelpers.findAndHookMethod(vmapAdBreak, "getAds", new XC_MethodReplacement() {
-
-				@Override
-				protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-					return Collections.EMPTY_LIST;
-				}
-			});
-
-		} catch (Throwable e1) {
-			log(e1);
-			try {
-				vmapAdBreak = XposedHelpers.findClass(
-						"com.google.android.apps.youtube.datalib.legacy.model.VmapAdBreak", classLoader);
-				XposedHelpers.findAndHookMethod(vmapAdBreak, "isDisplayAdAllowed",
-						XC_MethodReplacement.returnConstant(Boolean.FALSE));
-
-				XposedHelpers.findAndHookMethod(vmapAdBreak, "getAds", new XC_MethodReplacement() {
-
-					@Override
-					protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-						return Collections.EMPTY_LIST;
-					}
-				});
-
-			} catch (Throwable e2) {
-				log(e2);
-				try {
-					vmapAdBreak = XposedHelpers.findClass("com.google.android.apps.youtube.core.model.VmapAdBreak",
-							classLoader);
-					XposedBridge.hookAllConstructors(vmapAdBreak, new XC_MethodHook() {
-						@Override
-						protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-							XposedHelpers.setBooleanField(param.thisObject, "isDisplayAdAllowed", Boolean.FALSE);
-						}
-					});
-
-					XposedHelpers.findAndHookMethod(vmapAdBreak, "getAds", new XC_MethodReplacement() {
-
-						@Override
-						protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
-							return Collections.EMPTY_LIST;
-						}
-					});
-
-				} catch (Throwable e3) {
-					log(e3);
-				}
-			}
-
-		}
-
 	}
 
-	private static void log(Throwable e) {
-		if (XYoutube.xPrefs.getBoolean("enableLogs", true)) {
+	private void log(Throwable e) {
+		if (xPrefs.getBoolean("enableLogs", true)) {
 			XposedBridge.log(e);
 		}
 	}
 
-	private static void log(String e) {
-		if (XYoutube.xPrefs.getBoolean("enableLogs", true)) {
+	private void log(String e) {
+		if (xPrefs.getBoolean("enableLogs", true)) {
 			XposedBridge.log(e);
 		}
 	}
 
-	private static class BFAsync extends AsyncTask<Void, Void, Boolean> {
+	private static class BFAsync extends AsyncTask<Params, Void, Boolean> {
+		ClassLoader classLoader;
+		XSharedPreferences xPrefs;
+		boolean isAdWrapperHooked = false;
+		boolean isDBHooked = false;
+
+		private void log(Throwable e) {
+			if (xPrefs.getBoolean("enableLogs", true)) {
+				XposedBridge.log(e);
+			}
+		}
+
+		private void log(String e) {
+			if (xPrefs.getBoolean("enableLogs", true)) {
+				XposedBridge.log(e);
+			}
+		}
 
 		@Override
-		protected Boolean doInBackground(Void... params) {
-
+		protected Boolean doInBackground(Params... params) {
+			classLoader = params[0].getClassLoader();
+			xPrefs = params[0].getxPrefs();
 			boolean found = false;
 			for (char a1 = 'z'; a1 >= 'a'; a1--) {
 				for (char a2 = 'z'; a2 >= 'a'; a2--) {
@@ -196,10 +97,9 @@ public class XYoutube {
 			final String lCRegex = "[a-z]+";
 			Pattern lCPatern = null;
 
-			XYoutube.xPrefs.reload();
 			try {
 				classObj = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(),
-						XYoutube.classLoader);
+						classLoader);
 			} catch (Throwable e1) {
 				return false;
 			}
@@ -210,38 +110,19 @@ public class XYoutube {
 						&& XposedHelpers.findMethodExact(classObj, "a").getReturnType().equals(List.class)) {
 					isDBHooked = true;
 
-					Method a = XposedHelpers.findMethodExact(classObj, "a", String.class);
-					if (a.getReturnType().equals(Set.class)) {
-						XposedBridge.hookMethod(a, XC_MethodReplacement.returnConstant(Collections.emptySet()));
-					}
+					XposedBridge.hookAllConstructors(classObj, new XC_MethodHook() {
 
-					Method aNoParams = XposedHelpers.findMethodExact(classObj, "a");
-					if (aNoParams.getReturnType().equals(List.class)) {
-						XposedBridge.hookMethod(a, XC_MethodReplacement.returnConstant(Collections.emptySet()));
-					}
-
-					Method b = XposedHelpers.findMethodExact(classObj, "b", String.class);
-					if (b.getReturnType().equals(int.class)) {
-						XposedBridge.hookMethod(a, XC_MethodReplacement.returnConstant(0));
-					}
-
-					Method a2P = XposedHelpers.findMethodExact(classObj, "a", String.class);
-					XposedBridge.hookMethod(a2P, new XC_MethodHook() {
-						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+						@Override
+						protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 							Object dataProvider = XposedHelpers.getObjectField(param.thisObject, "a");
-							Object sQLiteDatabase = (SQLiteDatabase) XposedHelpers.callMethod(dataProvider,
-									"getWritableDatabase");
-							XposedHelpers.callMethod(sQLiteDatabase, "delete", new Object[] { "ads", null, null });
-						};
-					});
-
-					Method b2P = XposedHelpers.findMethodExact(classObj, "a", String.class, String.class);
-					XposedBridge.hookMethod(b2P, new XC_MethodHook() {
-						protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-							Object dataProvider = XposedHelpers.getObjectField(param.thisObject, "a");
-							Object sQLiteDatabase = (SQLiteDatabase) XposedHelpers.callMethod(dataProvider,
-									"getWritableDatabase");
-							XposedHelpers.callMethod(sQLiteDatabase, "delete", new Object[] { "ads", null, null });
+							if (dataProvider != null) {
+								Object sQLiteDatabase = (SQLiteDatabase) XposedHelpers.callMethod(dataProvider,
+										"getWritableDatabase");
+								if (sQLiteDatabase != null) {
+									XposedHelpers.callMethod(sQLiteDatabase, "delete",
+											new Object[] { "ads", null, null });
+								}
+							}
 						};
 					});
 
@@ -321,7 +202,6 @@ public class XYoutube {
 
 			if (!found) {
 				log("YouTube AdAway: brute force failed! Class/Param sequence not found");
-				disableYouTubeAds(XYoutube.classLoader);
 			}
 		}
 
