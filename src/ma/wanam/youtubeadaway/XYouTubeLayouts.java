@@ -1,6 +1,5 @@
 package ma.wanam.youtubeadaway;
 
-import android.content.res.XModuleResources;
 import android.view.View;
 import android.view.ViewGroup;
 import de.robv.android.xposed.XposedBridge;
@@ -9,10 +8,12 @@ import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 
 public class XYouTubeLayouts {
 
-	private static final String[] blockedPromotedLayers = new String[] { "app_promo_ad_cta_overlay",
-			"app_promotion_card", "background_promo", "compact_promoted_item", "compact_promoted_video_item",
-			"default_promo_panel", "generic_promo_banner", "generic_promo_card", "interstitial_promo_view",
-			"music_key_promo_feature_item", "music_key_promo_feature_item_text", "music_key_promo_small_feature_item",
+	private InitPackageResourcesParam resparam;
+
+	private final String[] blockedPromotedLayers = new String[] { "app_promo_ad_cta_overlay", "app_promotion_card",
+			"background_promo", "compact_promoted_item", "compact_promoted_video_item", "default_promo_panel",
+			"generic_promo_banner", "generic_promo_card", "interstitial_promo_view", "music_key_promo_feature_item",
+			"music_key_promo_feature_item_text", "music_key_promo_small_feature_item",
 			"promoted_15_click_pt_text_ctd_watch", "promoted_15_click_pt_text_watch",
 			"promoted_15_click_text_ctd_watch", "promoted_15_click_text_watch", "promoted_app_install_new_line_layout",
 			"promoted_app_install_right_align_layout", "promoted_app_install_wrapper", "promoted_native_text_ctd_home",
@@ -28,7 +29,11 @@ public class XYouTubeLayouts {
 			"invideo_programming_overlay", "info_cards_teaser_overlay", "custom_debug_ad_break",
 			"debug_offline_ad_video_entry", "debug_online_ads", "debug_offline_ad_layout", "debug_offline_ad_entry" };
 
-	public static void doHook(InitPackageResourcesParam resparam, XModuleResources moduleResources) {
+	public XYouTubeLayouts(InitPackageResourcesParam resparam) {
+		this.resparam = resparam;
+	}
+
+	public void doHook() {
 
 		try {
 

@@ -11,8 +11,8 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class Xposed implements IXposedHookLoadPackage, IXposedHookZygoteInit {
-	private static Context context = null;
-	private static XSharedPreferences prefs;
+	private Context context = null;
+	private XSharedPreferences prefs;
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable {
@@ -20,7 +20,6 @@ public class Xposed implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 		try {
 			prefs = new XSharedPreferences(Constants.GOOGLE_YOUTUBE_XPOSED, MainActivity.class.getSimpleName());
 		} catch (Throwable e) {
-			XposedBridge.log(e);
 		}
 	}
 
@@ -35,6 +34,7 @@ public class Xposed implements IXposedHookLoadPackage, IXposedHookZygoteInit {
 				|| lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_TV1_PACKAGE)
 				|| lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_TV2_PACKAGE)) {
 			try {
+
 				if (context == null) {
 					Object activityThread = XposedHelpers.callStaticMethod(
 							XposedHelpers.findClass("android.app.ActivityThread", null), "currentActivityThread");
