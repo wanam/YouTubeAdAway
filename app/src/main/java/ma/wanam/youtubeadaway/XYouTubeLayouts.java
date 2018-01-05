@@ -56,7 +56,9 @@ public class XYouTubeLayouts {
                                 int childCount = vg.getChildCount();
                                 if (childCount > 0) {
                                     for (int i = childCount; i > 0; i--) {
-                                        views.add(vg.getChildAt(i));
+                                        if (vg.getChildAt(i) != null) {
+                                            views.add(vg.getChildAt(i));
+                                        }
                                     }
 
                                     for (View v : views) {

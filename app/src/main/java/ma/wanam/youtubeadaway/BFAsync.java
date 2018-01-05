@@ -3,8 +3,10 @@ package ma.wanam.youtubeadaway;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,8 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
     boolean isAdDBHooked = false;
     Class<?> jSONObject = null;
     boolean isAdWrapperHooked = false;
+    boolean isAdBuilderHooked = false;
+    boolean isAdPropsHooked = false;
 
     private void logThrowable(Throwable e) {
         if (prefs.getBoolean("enableLogs", true)) {
@@ -33,6 +37,12 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
 
     private void logString(String e) {
         if (prefs.getBoolean("enableLogs", true)) {
+            XposedBridge.log(e);
+        }
+    }
+
+    private void debug(String e) {
+        if (BuildConfig.DEBUG) {
             XposedBridge.log(e);
         }
     }
@@ -52,9 +62,9 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
         }
 
         if (adFetchers.length() > 0) {
-            logString("YouTube AdAway: Successfully hooked ads fetchers" + (BuildConfig.DEBUG ? adFetchers.toString() : ""));
+            debug("YouTube AdAway: Successfully hooked ads fetchers" + adFetchers.toString());
         }
-        return isAdWrapperHooked && isAdFetcherHooked && isAdDBHooked;
+        return isAdWrapperHooked && isAdFetcherHooked && isAdDBHooked && isAdPropsHooked && isAdBuilderHooked;
     }
 
     private void deleteAds(MethodHookParam param) {
@@ -83,11 +93,11 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
      * @param a3
      * @return true if a hook was found
      */
-    private synchronized void findAndHookYouTubeAds(char a1, char a2, char a3) {
+    private void findAndHookYouTubeAds(char a1, char a2, char a3) {
         Class<?> classObj;
         Class<?> paramObj;
         final String lCRegex = "[a-z]+";
-        Pattern lCPatern = null;
+        final Pattern lCPatern = Pattern.compile(lCRegex);
 
         try {
             classObj = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
@@ -96,28 +106,50 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
         }
 
         try {
+            if (!isAdBuilderHooked
+                    && XposedHelpers.findFirstFieldByExactType(classObj, Parcelable.Creator.class).getName()
+                    .equals("CREATOR")) {
+                try {
+                    XposedHelpers.findMethodExact(classObj, "A");
+                } catch (Throwable t) {
+                    XposedHelpers.findConstructorExact(classObj, Parcel.class);
+                    XposedHelpers.findMethodExact(classObj, "a", Parcel.class);
+                    XposedHelpers.findMethodExact(classObj, "b", Parcel.class);
+                    Method m = XposedHelpers.findMethodExact(classObj, "a", List.class);
+                    try {
+                        XposedBridge.hookAllConstructors(classObj, new XC_MethodHook() {
+                            @Override
+                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                                if (param.args != null && param.args.length > 1 && lCPatern.matcher(param.args[0].getClass().getName()).matches()) {
+                                    if (param.args.length > 3) {
+                                        param.args[1] = false; //isLinearAdAllowed
+                                        param.args[2] = false; //isNonlinearAdAllowed
+                                        param.args[3] = false; //isDisplayAdAllowed
+                                    }
+                                }
+                            }
+                        });
+
+                        XposedBridge.hookMethod(m, XC_MethodReplacement.returnConstant(Collections.EMPTY_LIST));
+                        isAdBuilderHooked = true;
+                        debug("YouTube AdAway: Successfully hooked ads builder " + classObj.getName());
+                    } catch (Throwable e) {
+                        logString("YouTube AdAway: Failed to hook " + classObj.getName() + " constructor!");
+                        logThrowable(e);
+                    }
+                }
+            }
+        } catch (Throwable e) {
+        }
+
+
+        try {
             if (!isAdWrapperHooked
                     && XposedHelpers.findFirstFieldByExactType(classObj, Parcelable.Creator.class).getName()
                     .equals("CREATOR")
                     && XposedHelpers.findMethodExact(classObj, "A").getReturnType().equals(List.class)) {
                 try {
-                    XposedBridge.hookAllConstructors(classObj, new XC_MethodHook() {
-                        @Override
-                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                            if (param.args != null && param.args.length > 1 && (param.args[0] instanceof List)) {
-                                param.args[0] = Collections.EMPTY_LIST; // impressionUris
-                                param.args[1] = null; // adVideoId
-                            }
-                        }
-                    });
-                    isAdWrapperHooked = true;
-                } catch (Throwable e) {
-                    logString("YouTube AdAway: Failed to hook " + classObj.getName() + " constructor!");
-                    logThrowable(e);
-                }
 
-                try {
-                    lCPatern = Pattern.compile(lCRegex);
                     Method[] methods = classObj.getDeclaredMethods();
                     for (Method m : methods) {
                         if (m.getName().equals("b") && m.getReturnType().equals(boolean.class)
@@ -134,8 +166,9 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
                                                 XC_MethodReplacement.returnConstant(Boolean.TRUE));
                                         XposedBridge.hookMethod(m, XC_MethodReplacement.returnConstant(Boolean.FALSE));
 
-                                        logString("YouTube AdAway: Successfully hooked ads wrapper " + (BuildConfig.DEBUG ? classObj.getName()
-                                                + " param=" + paramObj.getName() : ""));
+                                        isAdWrapperHooked = true;
+                                        debug("YouTube AdAway: Successfully hooked ads wrapper " + classObj.getName()
+                                                + " param=" + paramObj.getName());
                                         break;
                                     } catch (Throwable e) {
                                         logString("YouTube AdAway: Failed to hook " + classObj.getName()
@@ -150,11 +183,10 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
                     logString("YouTube AdAway: Failed to hook " + classObj.getName() + " methods!");
                     logThrowable(e);
                 }
-
             }
-
         } catch (Throwable e) {
         }
+
 
         if (!isAdDBHooked) {
             try {
@@ -167,7 +199,37 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
                 });
 
                 isAdDBHooked = true;
-                logString("YouTube AdAway: Successfully hooked ads DB " + classObj.getName());
+                debug("YouTube AdAway: Successfully hooked ads DB " + classObj.getName());
+            } catch (Throwable ignored) {
+            }
+        }
+
+        if (!isAdPropsHooked) {
+            try {
+                Class<?> cType = XposedHelpers.findMethodExact(classObj, "a").getReturnType();
+                if (XposedHelpers.findFirstFieldByExactType(classObj, String.class).getName().equals("a")
+                        && XposedHelpers.findMethodExact(classObj, "a", long.class).getReturnType() == cType
+                        && XposedHelpers.findMethodExact(classObj, "a", boolean.class).getReturnType() == cType) {
+
+                    Method[] methods = classObj.getDeclaredMethods();
+                    final Field[] fields = classObj.getDeclaredFields();
+                    for (Method m : methods) {
+                        if (m.getParameterTypes().length == 0) {
+                            XposedBridge.hookMethod(m, new XC_MethodHook() {
+                                @Override
+                                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                                    for (Field f : fields) {
+                                        if (f.getType() == Boolean.class) {
+                                            XposedHelpers.setBooleanField(param.thisObject, f.getName(), Boolean.TRUE);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    isAdPropsHooked = true;
+                    debug("YouTube AdAway: Successfully hooked ads props " + classObj.getName());
+                }
             } catch (Throwable ignored) {
             }
         }
@@ -187,6 +249,7 @@ public class BFAsync extends AsyncTask<Params, Void, Boolean> {
             }
         } catch (Throwable ignored) {
         }
+
 
     }
 

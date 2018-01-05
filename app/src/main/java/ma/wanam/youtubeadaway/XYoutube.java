@@ -17,7 +17,7 @@ public class XYoutube {
     public void doHook(String version, String moduleVersion, String packageName) {
 
         try {
-            log("YouTube: " + packageName + " " + version + " loaded!");
+            log("YouTube: " + packageName + " " + version + " loaded with module version " + moduleVersion);
             new BFAsync().execute(new Params(classLoader, xPrefs));
         } catch (Throwable t) {
             log(t);
