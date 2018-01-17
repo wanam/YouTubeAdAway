@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\incremental\\mergeReleaseResources\\merged.dir\\values\\values.xml",
+            "map": [
+                {
+                    "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\values\\strings.xml",
+                    "from": {
+                        "startLines": "3,7,6,4,5,8",
+                        "startColumns": "4,4,4,4,4,4",
+                        "startOffsets": "56,408,334,108,161,450",
+                        "endColumns": "51,41,73,52,172,47",
+                        "endOffsets": "103,445,403,156,329,493"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7",
+                        "startColumns": "4,4,4,4,4,4",
+                        "startOffsets": "55,107,149,223,276,449",
+                        "endColumns": "51,41,73,52,172,47",
+                        "endOffsets": "102,144,218,271,444,492"
+                    }
+                }
+            ]
+        }
+    ]
+}

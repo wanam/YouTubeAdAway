@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/moduleStatus"
@@ -13,31 +13,24 @@
         android:padding="15dip"
         android:text="@string/module_active" />
 
-    <CheckBox
-        android:id="@+id/enableLogs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="15dip"
-        android:text="@string/enable_verbose_logging" />
-
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <Button
+            android:id="@+id/btnDonate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/donate"
-            android:id="@+id/btnDonate" />
+            android:text="@string/donate" />
 
         <Button
+            android:id="@+id/btnOK"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/no_thanks"
-            android:id="@+id/btnOK" />
+            android:text="@string/no_thanks" />
 
     </LinearLayout>
 

@@ -1,19 +1,15 @@
 package ma.wanam.youtubeadaway;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import ma.wanam.youtubeadaway.R.id;
-import ma.wanam.youtubeadaway.utils.Constants;
 
 public class MainActivity extends Activity {
     private final String DONATE_URL = "https://www.paypal.me/Wanam";
@@ -21,8 +17,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final SharedPreferences sharedPreferences = getSharedPreferences(Constants.MAIN_PREFS, Context.MODE_PRIVATE);
-
         setContentView(R.layout.activity_main);
 
         String pInfo = "";
@@ -41,16 +35,6 @@ public class MainActivity extends Activity {
         TextView tvStatus = ((TextView) findViewById(R.id.moduleStatus));
         tvStatus.setText(status);
         tvStatus.setTextColor((XChecker.isEnabled() ? Color.GREEN : Color.RED));
-
-        final CheckBox cbLogs = (CheckBox) findViewById(id.enableLogs);
-        cbLogs.setChecked(sharedPreferences.getBoolean("enableLogs", true));
-        cbLogs.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                sharedPreferences.edit().putBoolean("enableLogs", cbLogs.isChecked()).commit();
-            }
-        });
 
         findViewById(id.btnOK).setOnClickListener(new View.OnClickListener() {
             @Override

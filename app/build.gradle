@@ -28,5 +28,4 @@ repositories {
 
 dependencies {
     provided 'de.robv.android.xposed:api:82'
-    compile 'com.crossbowffs.remotepreferences:remotepreferences:0.5'
 }

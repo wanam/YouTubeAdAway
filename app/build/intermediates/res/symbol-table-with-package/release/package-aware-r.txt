@@ -1,0 +1,13 @@
+ma.wanam.youtubeadaway
+int drawable ic_launcher 0x7f010000
+int id btnDonate 0x7f020000
+int id btnOK 0x7f020001
+int id enableLogs 0x7f020002
+int id moduleStatus 0x7f020003
+int layout activity_main 0x7f030000
+int string app_name 0x7f040000
+int string donate 0x7f040001
+int string enable_verbose_logging 0x7f040002
+int string module_active 0x7f040003
+int string module_inactive 0x7f040004
+int string no_thanks 0x7f040005
