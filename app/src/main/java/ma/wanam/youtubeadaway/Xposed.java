@@ -45,17 +45,34 @@ public class Xposed implements IXposedHookLoadPackage {
 
                         int visibility = (int) param.args[0];
                         View view = (View) param.thisObject;
-                        if (visibility == View.VISIBLE) {
-                            try {
-                                String key = view.getResources().getResourceEntryName(view.getId());
+
+                        try {
+                            String key = view.getResources().getResourceEntryName(view.getId());
+                            if (key.equals("skip_ad_button")) {
+                                param.args[0] = View.VISIBLE;
+                                debug("skip_ad_button: set to visible");
+                            } else if (visibility == View.VISIBLE) {
                                 if (isAd(key)) {
                                     debug("detected visible ad: " + key);
                                     param.args[0] = View.GONE;
-                                } else {
-                                    debug("ignored visible view: " + key);
                                 }
-                            } catch (Resources.NotFoundException ignored) {
                             }
+                        } catch (Resources.NotFoundException ignored) {
+                        }
+
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        int visibility = (int) param.args[0];
+                        View view = (View) param.thisObject;
+
+                        try {
+                            String key = view.getResources().getResourceEntryName(view.getId());
+                            if (key.equals("skip_ad_button")) {
+                                performRecursiveClick(view);
+                            }
+                        } catch (Resources.NotFoundException ignored) {
                         }
                     }
                 });
@@ -72,6 +89,15 @@ public class Xposed implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         hideInflatedAd(param);
+                    }
+                });
+
+                final Class<?> mSkipAdButton = XposedHelpers.findClass("com.google.android.libraries.youtube.ads.player.ui.SkipAdButton", lpparam.classLoader);
+                XposedBridge.hookAllConstructors(mSkipAdButton, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedHelpers.callMethod(param.thisObject, "a");
+                        debug("SkipAdButton.a()");
                     }
                 });
 
@@ -95,18 +121,35 @@ public class Xposed implements IXposedHookLoadPackage {
         View view = (View) param.getResult();
         try {
             String key = view.getResources().getResourceEntryName(view.getId());
-            if (isAd(key)) {
-                debug("detected inflated ad: " + key);
+
+            if (key.equals("skip_ad_button")) {
+                performRecursiveClick(view);
+            } else if (isAd(key)) {
                 XposedHelpers.callMethod(view, "setVisibility", View.GONE);
-            } else {
-                debug("ignored inflated view: " + key);
+                debug("detected inflated ad: " + key);
             }
-        } catch (Resources.NotFoundException ignored) {
+        } catch (
+                Resources.NotFoundException ignored) {
+        }
+
+    }
+
+    private void performRecursiveClick(View view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) view;
+            int count = vg.getChildCount();
+            for (int i = 0; i < count; i++) {
+                vg.getChildAt(i).performClick();
+                debug("performRecursiveClick " + i);
+            }
+        } else {
+            view.performClick();
+            debug("skip_ad_button: click performed");
         }
     }
 
     private boolean isAd(String key) {
-        return key.startsWith("ad_") || key.startsWith("ads_") || key.contains("promo") || key.contains("mdx")
+        return key.startsWith("ad_") || key.startsWith("ads_") || key.contains("promo")
                 || key.contains("shopping") || key.contains("teaser") || key.contains("companion") || key.contains("invideo")
                 || key.contains("_ad_") || key.contains("_ads_") || key.endsWith("_ad") || key.endsWith("_ads") || key.contains("gads");
     }
