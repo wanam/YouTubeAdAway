@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.net.URL;
+
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -14,8 +16,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import ma.wanam.youtubeadaway.utils.Constants;
 
 public class Xposed implements IXposedHookLoadPackage {
+    private static final String LOCALHOST = "https://127.0.0.1";
     private Context context = null;
-    private View player = null;
 
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
@@ -40,6 +42,7 @@ public class Xposed implements IXposedHookLoadPackage {
                         0).versionName;
 
                 hookViews(lpparam);
+                hookURL(lpparam);
 
                 XposedBridge.log("YouTube: " + lpparam.packageName + " " + versionCode + " loaded with module version " + moduleVersionCode);
             } catch (Throwable t) {
@@ -55,6 +58,25 @@ public class Xposed implements IXposedHookLoadPackage {
                 XposedBridge.log(t);
             }
         }
+    }
+
+    private void hookURL(LoadPackageParam lpparam) {
+        final Class<?> mURL = XposedHelpers.findClass("java.net.URL", lpparam.classLoader);
+        XposedBridge.hookAllMethods(mURL, "openConnection", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                URL url = (URL) param.thisObject;
+
+                if (url.getHost().contains("googleadservices") || url.getHost().contains("pagead")
+                        || url.getHost().contains("doubleclick") || url.getHost().contains("googleads")
+                        || url.getHost().contains("_ads")) {
+                    debug("close connection: " + url.getHost());
+                    param.thisObject = new URL(LOCALHOST);
+                } else {
+                    debug("open Connection: " + url.getHost());
+                }
+            }
+        });
     }
 
     private void hookViews(LoadPackageParam lpparam) {
