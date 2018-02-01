@@ -1,11 +1,7 @@
 package ma.wanam.youtubeadaway;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.View;
-import android.view.ViewGroup;
-
-import java.net.URL;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -16,8 +12,8 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import ma.wanam.youtubeadaway.utils.Constants;
 
 public class Xposed implements IXposedHookLoadPackage {
-    private static final String LOCALHOST = "https://127.0.0.1";
-    private Context context = null;
+    private static final String SKIP_AD = "skip_ad";
+    private static Context context = null;
 
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
@@ -42,7 +38,8 @@ public class Xposed implements IXposedHookLoadPackage {
                         0).versionName;
 
                 hookViews(lpparam);
-                hookURL(lpparam);
+
+                new BFAsync().execute(lpparam.classLoader);
 
                 XposedBridge.log("YouTube: " + lpparam.packageName + " " + versionCode + " loaded with module version " + moduleVersionCode);
             } catch (Throwable t) {
@@ -60,100 +57,62 @@ public class Xposed implements IXposedHookLoadPackage {
         }
     }
 
-    private void hookURL(LoadPackageParam lpparam) {
-        final Class<?> mURL = XposedHelpers.findClass("java.net.URL", lpparam.classLoader);
-        XposedBridge.hookAllMethods(mURL, "openConnection", new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                URL url = (URL) param.thisObject;
-
-                if (url.getHost().contains("googleadservices") || url.getHost().contains("pagead")
-                        || url.getHost().contains("doubleclick") || url.getHost().contains("googleads")
-                        || url.getHost().contains("_ads")) {
-                    debug("close connection: " + url.getHost());
-                    param.thisObject = new URL(LOCALHOST);
-                } else {
-                    debug("open Connection: " + url.getHost());
-                }
-            }
-        });
-    }
-
     private void hookViews(LoadPackageParam lpparam) {
+
         final Class<?> mView = XposedHelpers.findClass("android.view.View", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(mView, "setVisibility", int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
-                int visibility = (int) param.args[0];
-                View view = (View) param.thisObject;
-
-                try {
-                    String key = view.getResources().getResourceEntryName(view.getId());
-                    if (key.contains("skip_ad")) {
-                        param.args[0] = View.VISIBLE;
-                        debug(key + ": set to visible");
-                    } else if (visibility == View.VISIBLE && isAd(key)) {
-                        debug("detected visible ad: " + key);
-                        param.args[0] = View.GONE;
-                    }
-                } catch (Resources.NotFoundException ignored) {
-                }
+                checkAndHideVisibleAd(param);
             }
 
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                View view = (View) param.thisObject;
-
-                try {
-                    String key = view.getResources().getResourceEntryName(view.getId());
-                    if (key.contains("skip_ad")) {
-                        view.bringToFront();
-                        view.setClickable(true);
-                        view.performClick();
-                        debug("SkipAdButton perform Click");
-                    }
-                } catch (Resources.NotFoundException ignored) {
-                }
-            }
-        });
-
-        final Class<?> mLayoutInflater = XposedHelpers.findClass("android.view.LayoutInflater", lpparam.classLoader);
-        XposedHelpers.findAndHookMethod(mLayoutInflater, "inflate", int.class, ViewGroup.class, boolean.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                hideInflatedAd(param);
-            }
-        });
-
-        XposedHelpers.findAndHookMethod(mLayoutInflater, "inflate", int.class, ViewGroup.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                hideInflatedAd(param);
+                performClick(param);
             }
         });
 
     }
 
-    private void hideInflatedAd(XC_MethodHook.MethodHookParam param) {
-        View view = (View) param.getResult();
+    private void checkAndHideVisibleAd(XC_MethodHook.MethodHookParam param) {
+        int visibility = (int) param.args[0];
+        View view = (View) param.thisObject;
+
         try {
             String key = view.getResources().getResourceEntryName(view.getId());
-
-            if (key.contains("skip_ad")) {
-                view.setVisibility(View.VISIBLE);
-            } else if (isAd(key)) {
-                view.setVisibility(View.GONE);
-                debug("detected inflated ad: " + key);
+            if (key.startsWith(SKIP_AD)) {
+                debug(key + " visibility: visible");
+                param.args[0] = View.VISIBLE;
+            } else if (visibility != View.GONE && isAd(key)) {
+                debug("visible ad view: " + key);
+                param.args[0] = View.GONE;
             }
-        } catch (Resources.NotFoundException ignored) {
+
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void performClick(XC_MethodHook.MethodHookParam param) throws Exception {
+
+        View view = (View) param.thisObject;
+        try {
+            String key = view.getResources().getResourceEntryName(view.getId());
+            if (key.startsWith(SKIP_AD)) {
+                debug("perform click: " + key);
+                view.bringToFront();
+                view.setEnabled(true);
+                view.setClickable(true);
+                view.performClick();
+            }
+        } catch (Throwable ignored) {
         }
     }
 
     private boolean isAd(String key) {
-        return key.startsWith("ad_") || key.startsWith("ads_") || key.contains("promo") || key.contains("endcap") || key.contains("_cta")
-                || key.contains("shopping") || key.contains("teaser") || key.contains("companion") || key.contains("invideo") || key.contains("minibar")
-                || key.contains("_ad_") || key.contains("_ads_") || key.endsWith("_ad") || key.endsWith("_ads") || key.contains("gads");
+        return key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
+                || key.contains("_cta") || key.contains("shopping") || key.contains("teaser")
+                || key.contains("companion") || key.contains("_ad_") || key.contains("_ads_")
+                || key.contains("promo") || key.endsWith("_ad") || key.endsWith("_ads");
     }
 
     private void debug(String msg) {
