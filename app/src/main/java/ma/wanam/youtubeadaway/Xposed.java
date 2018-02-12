@@ -2,6 +2,8 @@ package ma.wanam.youtubeadaway;
 
 import android.content.Context;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -13,6 +15,8 @@ import ma.wanam.youtubeadaway.utils.Constants;
 
 public class Xposed implements IXposedHookLoadPackage {
     private static final String SKIP_AD = "skip_ad";
+    private static final String HIDE_MY_PARENT = "hide_my_parent";
+    private static final String AD_BADGE = "ad_badge";
     private static Context context = null;
 
     @Override
@@ -57,7 +61,7 @@ public class Xposed implements IXposedHookLoadPackage {
         }
     }
 
-    private void hookViews(LoadPackageParam lpparam) {
+    private void hookViews(final LoadPackageParam lpparam) {
 
         final Class<?> mView = XposedHelpers.findClass("android.view.View", lpparam.classLoader);
         XposedHelpers.findAndHookMethod(mView, "setVisibility", int.class, new XC_MethodHook() {
@@ -72,6 +76,31 @@ public class Xposed implements IXposedHookLoadPackage {
             }
         });
 
+        final Class<?> mViewGroup = XposedHelpers.findClass("android.view.ViewGroup", lpparam.classLoader);
+        XposedBridge.hookAllMethods(mViewGroup, "addView", new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                try {
+                    View view = (View) param.args[0];
+                    if (view.getTag() != null && view.getTag().equals(HIDE_MY_PARENT)) {
+                        ViewGroup vg = (ViewGroup) param.thisObject;
+                        vg.setVisibility(View.GONE);
+                        debug("hide ad badge grand parent");
+                    } else if (param.args[0] instanceof TextView) {
+                        TextView tv = (TextView) param.args[0];
+                        int adBadge = tv.getResources().getIdentifier(AD_BADGE, "string", lpparam.packageName);
+                        String adBadgeStr = tv.getResources().getString(adBadge);
+                        if (tv.getText().equals(adBadgeStr)) {
+                            ViewGroup vg = (ViewGroup) param.thisObject;
+                            vg.setVisibility(View.GONE);
+                            vg.setTag(HIDE_MY_PARENT);
+                            debug("hide ad badge parent");
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+        });
     }
 
     private void checkAndHideVisibleAd(XC_MethodHook.MethodHookParam param) {
