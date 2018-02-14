@@ -69,38 +69,36 @@ public class Xposed implements IXposedHookLoadPackage {
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                 checkAndHideVisibleAd(param);
             }
-
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                performClick(param);
-            }
         });
 
         final Class<?> mViewGroup = XposedHelpers.findClass("android.view.ViewGroup", lpparam.classLoader);
         XposedBridge.hookAllMethods(mViewGroup, "addView", new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                try {
-                    View view = (View) param.args[0];
-                    if (view.getTag() != null && view.getTag().equals(HIDE_MY_PARENT)) {
-                        ViewGroup vg = (ViewGroup) param.thisObject;
-                        vg.setVisibility(View.GONE);
-                        debug("hide ad badge grand parent");
-                    } else if (param.args[0] instanceof TextView) {
-                        TextView tv = (TextView) param.args[0];
-                        int adBadge = tv.getResources().getIdentifier(AD_BADGE, "string", lpparam.packageName);
-                        String adBadgeStr = tv.getResources().getString(adBadge);
-                        if (tv.getText().equals(adBadgeStr)) {
-                            ViewGroup vg = (ViewGroup) param.thisObject;
-                            vg.setVisibility(View.GONE);
-                            vg.setTag(HIDE_MY_PARENT);
-                            debug("hide ad badge parent");
-                        }
-                    }
-                } catch (Throwable ignored) {
-                }
+                checkAndHideAdViewCards(param, lpparam);
             }
         });
+    }
+
+    private void checkAndHideAdViewCards(XC_MethodHook.MethodHookParam param, LoadPackageParam lpparam) {
+        try {
+            View view = (View) param.args[0];
+            if (view.getTag() != null && view.getTag().equals(HIDE_MY_PARENT)) {
+                debug("hide ad badge grand parent");
+                ViewGroup vg = (ViewGroup) param.thisObject;
+                vg.setVisibility(View.GONE);
+            } else if (view.getVisibility() == View.VISIBLE && view instanceof TextView) {
+                int adBadge = view.getResources().getIdentifier(AD_BADGE, "string", lpparam.packageName);
+                String adBadgeStr = view.getResources().getString(adBadge);
+                if (((TextView) view).getText().equals(adBadgeStr)) {
+                    debug("hide ad badge parent");
+                    ViewGroup vg = (ViewGroup) param.thisObject;
+                    vg.setVisibility(View.GONE);
+                    vg.setTag(HIDE_MY_PARENT);
+                }
+            }
+        } catch (Throwable ignored) {
+        }
     }
 
     private void checkAndHideVisibleAd(XC_MethodHook.MethodHookParam param) {
@@ -109,36 +107,17 @@ public class Xposed implements IXposedHookLoadPackage {
 
         try {
             String key = view.getResources().getResourceEntryName(view.getId());
-            if (key.startsWith(SKIP_AD)) {
-                debug(key + " visibility: visible");
-                param.args[0] = View.VISIBLE;
-            } else if (visibility != View.GONE && isAd(key)) {
+            if (visibility != View.GONE && isAd(key)) {
                 debug("visible ad view: " + key);
                 param.args[0] = View.GONE;
-            }
-
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private void performClick(XC_MethodHook.MethodHookParam param) throws Exception {
-
-        View view = (View) param.thisObject;
-        try {
-            String key = view.getResources().getResourceEntryName(view.getId());
-            if (key.startsWith(SKIP_AD)) {
-                debug("perform click: " + key);
-                view.bringToFront();
-                view.setEnabled(true);
-                view.setClickable(true);
-                view.performClick();
             }
         } catch (Throwable ignored) {
         }
     }
 
     private boolean isAd(String key) {
-        return key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
+        return !key.startsWith(SKIP_AD)
+                && key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
                 || key.contains("_cta") || key.contains("shopping") || key.contains("teaser")
                 || key.contains("companion") || key.contains("_ad_") || key.contains("_ads_")
                 || key.contains("promo") || key.endsWith("_ad") || key.endsWith("_ads");
