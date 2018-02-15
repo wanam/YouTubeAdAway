@@ -117,10 +117,10 @@ public class Xposed implements IXposedHookLoadPackage {
 
     private boolean isAd(String key) {
         return !key.startsWith(SKIP_AD)
-                && key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
+                && (key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
                 || key.contains("_cta") || key.contains("shopping") || key.contains("teaser")
                 || key.contains("companion") || key.contains("_ad_") || key.contains("_ads_")
-                || key.contains("promo") || key.endsWith("_ad") || key.endsWith("_ads");
+                || key.contains("promo") || key.endsWith("_ad") || key.endsWith("_ads"));
     }
 
     private void debug(String msg) {
