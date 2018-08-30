@@ -1,6 +1,7 @@
 package ma.wanam.youtubeadaway;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -43,7 +44,7 @@ public class Xposed implements IXposedHookLoadPackage {
 
                 hookViews(lpparam);
 
-                new BFAsync().execute(lpparam.classLoader);
+                new BFAsync().execute(lpparam);
 
                 XposedBridge.log("YouTube: " + lpparam.packageName + " " + versionCode + " loaded with module version " + moduleVersionCode);
             } catch (Throwable t) {
@@ -128,5 +129,6 @@ public class Xposed implements IXposedHookLoadPackage {
             XposedBridge.log(msg);
         }
     }
+
 
 }
