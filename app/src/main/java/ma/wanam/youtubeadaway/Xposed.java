@@ -14,7 +14,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import ma.wanam.youtubeadaway.utils.Constants;
 
 public class Xposed implements IXposedHookLoadPackage {
-    private static final String SKIP_AD = "skip_ad";
     private static final String HIDE_MY_PARENT = "hide_my_parent";
     private static final String AD_BADGE = "ad_badge";
     private static Context context = null;
@@ -62,15 +61,6 @@ public class Xposed implements IXposedHookLoadPackage {
     }
 
     private void hookViews(final LoadPackageParam lpparam) {
-
-        final Class<?> mView = XposedHelpers.findClass("android.view.View", lpparam.classLoader);
-        XposedHelpers.findAndHookMethod(mView, "setVisibility", int.class, new XC_MethodHook() {
-            @Override
-            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                checkAndHideVisibleAd(param);
-            }
-        });
-
         final Class<?> mViewGroup = XposedHelpers.findClass("android.view.ViewGroup", lpparam.classLoader);
         XposedBridge.hookAllMethods(mViewGroup, "addView", new XC_MethodHook() {
             @Override
@@ -99,28 +89,6 @@ public class Xposed implements IXposedHookLoadPackage {
             }
         } catch (Throwable ignored) {
         }
-    }
-
-    private void checkAndHideVisibleAd(XC_MethodHook.MethodHookParam param) {
-        int visibility = (int) param.args[0];
-        View view = (View) param.thisObject;
-
-        try {
-            String key = view.getResources().getResourceEntryName(view.getId());
-            if (visibility != View.GONE && isAd(key)) {
-                debug("visible ad view: " + key);
-                param.args[0] = View.GONE;
-            }
-        } catch (Throwable ignored) {
-        }
-    }
-
-    private boolean isAd(String key) {
-        return !key.startsWith(SKIP_AD)
-                && (key.equals("ad") || key.equals("ads") || key.startsWith("ad_") || key.startsWith("ads_")
-                || key.contains("_cta") || key.contains("shopping") || key.contains("teaser")
-                || key.contains("companion") || key.contains("_ad_") || key.contains("_ads_")
-                || key.contains("promo") || key.endsWith("_ad") || key.endsWith("_ads"));
     }
 
     private void debug(String msg) {

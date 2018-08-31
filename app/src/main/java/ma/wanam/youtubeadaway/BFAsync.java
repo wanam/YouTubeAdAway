@@ -1,12 +1,12 @@
 package ma.wanam.youtubeadaway;
 
 import android.os.AsyncTask;
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Calendar;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import de.robv.android.xposed.XC_MethodHook;
@@ -64,11 +64,10 @@ public class BFAsync extends AsyncTask<ClassLoader, Void, Boolean> {
         }
 
         try {
-            if (XposedHelpers.findFirstFieldByExactType(classObj, Parcelable.Creator.class).getName()
-                    .equals("CREATOR")
-                    && XposedHelpers.findMethodExact(classObj, "A").getReturnType().equals(List.class)) {
+            XposedHelpers.findConstructorExact(classObj);
+            XposedHelpers.findConstructorExact(classObj, Parcel.class);
+            if (XposedHelpers.findFirstFieldByExactType(classObj, Parcelable.Creator.class).getName().equals("CREATOR")) {
                 try {
-
                     Method[] methods = classObj.getDeclaredMethods();
                     for (Method m : methods) {
                         if (m.getName().equals("b") && m.getReturnType().equals(boolean.class)
@@ -76,7 +75,6 @@ public class BFAsync extends AsyncTask<ClassLoader, Void, Boolean> {
                             paramObj = m.getParameterTypes()[0];
 
                             if (lCPatern.matcher(paramObj.getName()).matches()) {
-
                                 Method mClass = XposedHelpers.findMethodExact(classObj, "a", paramObj);
 
                                 if (mClass.getReturnType().equals(boolean.class)) {
