@@ -23,8 +23,8 @@ android {
 }
 
 repositories {
-    jcenter();
     google();
+    jcenter();
 }
 
 dependencies {

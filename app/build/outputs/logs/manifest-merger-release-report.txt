@@ -1,100 +1,83 @@
 -- Merging decision tree log ---
 manifest
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-MERGED from [com.crossbowffs.remotepreferences:remotepreferences:0.5] D:\PortableApps\.gradle\caches\transforms-1\files-1.1\remotepreferences-0.5.aar\c0e22e714181fa6516ace340937ae4ed\AndroidManifest.xml:2:1-12:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:1-44:12
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:1-39:12
 	package
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:3:5-37
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:3:5-37
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
 	android:versionName
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:5:5-32
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:5:5-32
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
 	xmlns:android
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:2:11-69
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:2:11-69
 	android:versionCode
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:4:5-30
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:4:5-30
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
 uses-sdk
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
-MERGED from [com.crossbowffs.remotepreferences:remotepreferences:0.5] D:\PortableApps\.gradle\caches\transforms-1\files-1.1\remotepreferences-0.5.aar\c0e22e714181fa6516ace340937ae4ed\AndroidManifest.xml:8:5-10:41
-MERGED from [com.crossbowffs.remotepreferences:remotepreferences:0.5] D:\PortableApps\.gradle\caches\transforms-1\files-1.1\remotepreferences-0.5.aar\c0e22e714181fa6516ace340937ae4ed\AndroidManifest.xml:8:5-10:41
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
-INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
+INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:7:5-9:41
 	android:targetSdkVersion
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:9:9-38
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:9:9-38
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
 	android:minSdkVersion
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:8:9-34
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
-		INJECTED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:8:9-34
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
+		INJECTED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml
 application
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:11:5-42:19
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:11:5-37:19
 	android:label
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:14:9-41
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:15:9-41
 	android:icon
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:13:9-45
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:14:9-45
 	android:allowBackup
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:12:9-35
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:12:9-35
 	android:theme
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:16:9-52
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:16:9-52
 	android:directBootAware
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:15:9-39
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:13:9-39
 meta-data#xposedmodule
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:17:9-19:36
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:17:9-19:36
 	android:value
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:19:13-33
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:19:13-33
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:18:13-40
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:18:13-40
 meta-data#xposedminversion
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:20:9-22:35
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:20:9-22:35
 	android:value
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:22:13-32
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:22:13-32
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:21:13-44
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:21:13-44
 meta-data#xposeddescription
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:23:9-25:55
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:23:9-25:55
 	android:value
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:25:13-52
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:25:13-52
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:24:13-45
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:24:13-45
 activity#ma.wanam.youtubeadaway.MainActivity
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:27:9-35:20
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:27:9-35:20
 	android:label
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:29:13-45
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:29:13-45
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:28:13-41
-intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER+de.robv.android.xposed.category.MODULE_SETTINGS
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:30:13-34:29
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:28:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:de.robv.android.xposed.category.MODULE_SETTINGS
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:30:13-34:29
 action#android.intent.action.MAIN
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:31:17-69
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:31:17-69
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:31:25-66
-category#android.intent.category.LAUNCHER
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:32:17-76
-	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:32:27-74
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:31:25-66
 category#de.robv.android.xposed.category.MODULE_SETTINGS
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:33:17-92
+ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:33:17-92
 	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:33:27-89
-provider#ma.wanam.youtubeadaway.MyPreferenceProvider
-ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:37:9-41:39
-	android:authorities
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:40:13-57
-	android:exported
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:41:13-36
-	android:directBootAware
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:39:13-43
-	android:name
-		ADDED from D:\PortableApps\AS\apps\YoutubeAdAway\app\src\main\AndroidManifest.xml:38:13-49
+		ADDED from C:\Data\YouTubeAdAway\app\src\main\AndroidManifest.xml:33:27-89

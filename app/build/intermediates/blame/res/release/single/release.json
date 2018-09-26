@@ -1,26 +1,26 @@
 [
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\layout_activity_main.xml.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\layout\\activity_main.xml"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-mdpi_ic_launcher.png.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
     },
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-ldpi_ic_launcher.png.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\drawable-ldpi\\ic_launcher.png"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi_ic_launcher.png.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\drawable-xhdpi\\ic_launcher.png"
     },
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-mdpi_ic_launcher.png.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\drawable-mdpi\\ic_launcher.png"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-hdpi_ic_launcher.png.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
     },
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-xxhdpi_ic_launcher.png.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\drawable-xxhdpi\\ic_launcher.png"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\layout_activity_main.xml.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\layout\\activity_main.xml"
     },
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-hdpi_ic_launcher.png.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\drawable-hdpi\\ic_launcher.png"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-ldpi_ic_launcher.png.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\drawable-ldpi\\ic_launcher.png"
     },
     {
-        "merged": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi_ic_launcher.png.flat",
-        "source": "D:\\PortableApps\\AS\\apps\\YoutubeAdAway\\app\\src\\main\\res\\drawable-xhdpi\\ic_launcher.png"
+        "merged": "C:\\Data\\YouTubeAdAway\\app\\build\\intermediates\\res\\merged\\release\\drawable-xxhdpi_ic_launcher.png.flat",
+        "source": "C:\\Data\\YouTubeAdAway\\app\\src\\main\\res\\drawable-xxhdpi\\ic_launcher.png"
     }
 ]
