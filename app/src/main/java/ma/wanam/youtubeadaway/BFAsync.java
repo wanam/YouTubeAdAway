@@ -123,13 +123,13 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
                                     Object arg=param.args[i];
                                     if(arg!=null&&arg.getClass()==Long.class) {
                                         long val=(Long)arg;
-                                        XposedBridge.log("class: " + param.thisObject.getClass().getName()+" param: " + i + " = " + arg.toString());
                                         //looks like a duration
                                         long maxdur=100000000;
                                         if(val>0&&val<maxdur) param.args[i]=-1;
                                         long iNow=Calendar.getInstance().getTimeInMillis();
                                         //future timestamp=expiration
-                                        if(val>iNow&&val<iNow+maxdur) param.args[i]=Calendar.getInstance().getTimeInMillis();
+                                        if(val>iNow-maxdur&&val<iNow+maxdur) param.args[i]=iNow-maxdur;
+                                       XposedBridge.log("class: " + param.thisObject.getClass().getName()+" param: " + i + " = " + arg.toString() + " -> " + param.args[i].toString());
                                     }
                                 }
                             }
