@@ -21,16 +21,14 @@ import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
 public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
-    private static ClassLoader cl;
-    private static boolean found = false;
 
-    private void debug(String msg) {
+    private static void debug(String msg) {
         if (BuildConfig.DEBUG) {
             XposedBridge.log(msg);
         }
     }
 
-    private void debug(Throwable msg) {
+    private static void debug(Throwable msg) {
         if (BuildConfig.DEBUG) {
             XposedBridge.log(msg);
         }
@@ -38,37 +36,33 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(LoadPackageParam... params) {
-        cl = params[0].classLoader;
+        return findHooks(params[0]);
+    }
 
-        String[] allCl=getAllClasses(params[0].appInfo);
-
-        final String lCRegex = "[a-z]+";
-        final Pattern lCPatern = Pattern.compile(lCRegex);
+    public static Boolean findHooks(LoadPackageParam param) {
+        Boolean res=false;
+        String[] allCl=getAllClasses(param.appInfo);
 
         for (int i=0;i<allCl.length;i++) {
             String clName=allCl[i];
-            if(clName.length()>6) continue;
-            findAndHookYouTubeAds(clName,lCPatern);
+            //if(clName.length()>6) continue;
+            if(clName.length()>3) continue; //currently 3 letters are sufficient
+            res|=findAndHookYouTubeAds(param.classLoader,clName);
         }
-
-        return found;
+        return res;
     }
 
 
-    /**
-     * @param a1
-     * @param a2
-     * @param a3
-     * @return true if a hook was found
-     */
-    private void findAndHookYouTubeAds(String clName,Pattern lCPatern) {
+    private static Boolean findAndHookYouTubeAds(ClassLoader cl,String clName) {
         Class<?> classObj=null;
         Class<?> paramObj=null;
+
+        Boolean res=false;
 
         try {
             classObj = XposedHelpers.findClass(clName, cl);
         } catch (Throwable e) {
-            return;
+            return res;
         }
 
         try {
@@ -100,7 +94,7 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
                             }
                         }
                     }
-                    if(sMethList==null||paramObj==null) return;
+                    if(sMethList==null||paramObj==null) return res;
 
                     int numLong=0;
                     Field[] fields = classObj.getDeclaredFields();
@@ -109,9 +103,9 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
                             numLong++;
                         }
                     }
-                    if(numLong<=0) return;
+                    if(numLong<=0) return res;
 
-
+                    res|=true;
                     XposedBridge.log(">>>>>>>>>> class: " + clName + " methList:"+sMethList+" paramobj:"+sMethBool+" "+sTypeBool+" numlong:"+numLong);
 
                     try {
@@ -134,7 +128,7 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
                                 }
                             }
                         });
-                        found = true;
+
                         //XposedBridge.log("YouTube AdAway: Successfully hooked ads wrapper " + classObj.getName() + " param=" + paramObj.getName());
                     } catch (Throwable e) {
                         XposedBridge.log("YouTube AdAway: Failed to hook " + classObj.getName() + " param=" + paramObj.getName() + " error: " + e);
@@ -147,6 +141,8 @@ public class BFAsync extends AsyncTask<LoadPackageParam, Void, Boolean> {
             }
         } catch (Throwable e) {
         }
+
+        return res;
     }
 
     private static String[] getAllClasses(ApplicationInfo ai) {
