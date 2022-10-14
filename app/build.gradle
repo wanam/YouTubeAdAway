@@ -1,31 +1,36 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdk 31
 
     defaultConfig {
         applicationId "ma.wanam.youtubeadaway"
-        minSdkVersion 9
-        targetSdkVersion 26
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_7
-            targetCompatibility JavaVersion.VERSION_1_7
-        }
+        minSdk 27
+        targetSdk 31
+        versionCode 500
+        versionName "5.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
-repositories {
-    jcenter();
-}
-
 dependencies {
-    provided 'de.robv.android.xposed:api:82'
+    compileOnly 'de.robv.android.xposed:api:82'
+    compileOnly 'de.robv.android.xposed:api:82:sources'
+
+    // used for debugging only
+    // implementation 'org.apache.commons:commons-lang3:3.12.0'
 }

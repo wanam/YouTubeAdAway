@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
                 + " "
                 + (XChecker.isEnabled() ? res.getString(R.string.module_active) : res
                 .getString(R.string.module_inactive));
-        TextView tvStatus = ((TextView) findViewById(R.id.moduleStatus));
+        TextView tvStatus = ((TextView) findViewById(id.moduleStatus));
         tvStatus.setText(status);
         tvStatus.setTextColor((XChecker.isEnabled() ? Color.GREEN : Color.RED));
 

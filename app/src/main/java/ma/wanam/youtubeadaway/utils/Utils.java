@@ -1,26 +1,21 @@
 package ma.wanam.youtubeadaway.utils;
 
-import java.util.List;
+import java.io.File;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class Utils {
 
-	public static PackageInfo pInfo;
-
-	public static boolean isPackageInstalled(Context context, String targetPackage) {
-		List<ApplicationInfo> packages;
-		PackageManager pm;
-		pm = context.getPackageManager();
-		packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-		for (ApplicationInfo packageInfo : packages) {
-			if (packageInfo.packageName.equals(targetPackage))
-				return true;
-		}
-		return false;
-	}
-
+    public static String getPackageVersion(XC_LoadPackage.LoadPackageParam lpparam) {
+        try {
+            Class<?> parserCls = XposedHelpers.findClass("android.content.pm.PackageParser", lpparam.classLoader);
+            Object parser = parserCls.newInstance();
+            File apkPath = new File(lpparam.appInfo.sourceDir);
+            Object pkg = XposedHelpers.callMethod(parser, "parsePackage", apkPath, 0);
+            return (String) XposedHelpers.getObjectField(pkg, "mVersionName");
+        } catch (Throwable e) {
+            return null;
+        }
+    }
 }
