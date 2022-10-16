@@ -70,8 +70,6 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         Class<?> aClass;
         Field[] fields;
         Method[] methods;
-        final String lCRegex = "[a-z]+";
-        final Pattern lCPatern = Pattern.compile(lCRegex);
 
         try {
             aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).append(a4).toString(), cl);
@@ -117,8 +115,6 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         Class<?> aClass;
         Field[] fields;
         Method[] methods;
-        final String lCRegex = "[a-z]+";
-        final Pattern lCPatern = Pattern.compile(lCRegex);
 
         try {
             aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
@@ -142,9 +138,11 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
                 if (sigBgFound) {
                     fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
+                            && method.getParameterTypes()[0].getName().length() == 4
                             && method.getReturnType().equals(boolean.class)
-                            && lCPatern.matcher(method.getName()).matches()
+                            && method.getName().equals(method.getName().toLowerCase())
                             && java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                            && java.lang.reflect.Modifier.isPublic(method.getModifiers())
                     ).findFirst();
 
                     sigBgFound = sigBgFound && fMethod.isPresent();
