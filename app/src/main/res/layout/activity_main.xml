@@ -24,6 +24,23 @@
         android:text="@string/whats_not" />
 
     <TextView
+        android:id="@+id/textVDonateBTC"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/donate_btc" />
+
+    <TextView
+        android:id="@+id/textViewBTCAdr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="3NhzLDbXqpi1nDjhfSyEfw7p1kyXGneCC8"
+        android:textIsSelectable="true" />
+
+
+    <TextView
         android:id="@+id/moduleStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

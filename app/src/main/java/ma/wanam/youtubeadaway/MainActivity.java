@@ -1,6 +1,9 @@
 package ma.wanam.youtubeadaway;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
@@ -8,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import ma.wanam.youtubeadaway.R.id;
 
@@ -54,6 +58,18 @@ public class MainActivity extends Activity {
                 } finally {
                     finish();
                 }
+            }
+        });
+
+        TextView tv = findViewById(id.textViewBTCAdr);
+        tv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                ClipboardManager cm = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("btc_adr", tv.getText());
+                cm.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), R.string.addr_copied, Toast.LENGTH_SHORT).show();
+                return false;
             }
         });
     }

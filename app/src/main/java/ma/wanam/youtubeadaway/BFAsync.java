@@ -8,10 +8,11 @@ import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XC_MethodReplacement;
@@ -36,10 +37,10 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
     private boolean bruteForceInVideoAds(ClassLoader cl) {
         Instant start = Instant.now();
-        for (char a2 = 'a'; a2 <= 'z'; a2++) {
-            for (char a3 = 'a'; a3 <= 'z'; a3++) {
-                for (char a4 = 'a'; a4 <= 'z'; a4++) {
-                    findAndHookInvideoAds('a', a2, a3, a4, cl);
+        for (char a1 = 'a'; a1 <= 'z'; a1++) {
+            for (char a2 = 'a'; a2 <= 'z'; a2++) {
+                for (char a3 = 'a'; a3 <= 'z'; a3++) {
+                    findAndHookInvideoAds('a', a1, a2, a3, cl);
                     if (sigAdFound) {
                         XposedBridge.log("In-Video ads hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
                         return true;
@@ -52,10 +53,23 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
     private boolean bruteForceBGP(ClassLoader cl) {
         Instant start = Instant.now();
+
+        for (char a1 = 'a'; a1 <= 'z'; a1++) {
+            for (char a2 = 'a'; a2 <= 'z'; a2++) {
+                for (char a3 = 'a'; a3 <= 'z'; a3++) {
+                    findAndHookVideoBGP4C('a', a1, a2, a3, cl);
+                    if (sigBgFound) {
+                        XposedBridge.log("Video BG playback hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
+                        return true;
+                    }
+                }
+            }
+        }
+
         for (char a1 = 'z'; a1 >= 'a'; a1--) {
             for (char a2 = 'z'; a2 >= 'a'; a2--) {
                 for (char a3 = 'z'; a3 >= 'a'; a3--) {
-                    findAndHookVideoBGP(a1, a2, a3, cl);
+                    findAndHookVideoBGP3C(a1, a2, a3, cl);
                     if (sigBgFound) {
                         XposedBridge.log("Video BG playback hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
                         return true;
@@ -70,8 +84,6 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         Class<?> aClass;
         Field[] fields;
         Method[] methods;
-        final String lCRegex = "[a-z]+";
-        final Pattern lCPatern = Pattern.compile(lCRegex);
 
         try {
             aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).append(a4).toString(), cl);
@@ -113,16 +125,47 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         }
     }
 
-    private void findAndHookVideoBGP(char a1, char a2, char a3, ClassLoader cl) {
+    // for YT 17.42+
+    private void findAndHookVideoBGP4C(char a0, char a1, char a2, char a3, ClassLoader cl) {
         Class<?> aClass;
-        Field[] fields;
         Method[] methods;
-        final String lCRegex = "[a-z]+";
-        final Pattern lCPatern = Pattern.compile(lCRegex);
+
+        try {
+            aClass = XposedHelpers.findClass(new StringBuffer().append(a0).append(a1).append(a2).append(a3).toString(), cl);
+            methods = aClass.getDeclaredMethods();
+        } catch (Throwable e1) {
+            return;
+        }
+
+        try {
+            if (!sigBgFound) {
+                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
+                        && method.getParameterTypes()[0].getName().length() == 4
+                        && method.getReturnType().equals(boolean.class)
+                        && method.getName().equals(method.getName().toLowerCase())
+                        && java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                        && java.lang.reflect.Modifier.isPublic(method.getModifiers())
+                ).collect(Collectors.toList());
+
+                sigBgFound = fMethods.size() > 5;
+                if (sigBgFound) {
+                    XposedBridge.hookMethod(fMethods.get(0), XC_MethodReplacement.returnConstant(true));
+                    XposedBridge.log("Hooked bg class: " + aClass.getName() + "." + fMethods.get(0).getName());
+                }
+            }
+        } catch (Throwable e) {
+            XposedBridge.log("YouTube AdAway: Failed to hook video bg playback class: " + aClass.getName());
+            XposedBridge.log(e);
+        }
+    }
+
+    // for YT 17.41-
+    private void findAndHookVideoBGP3C(char a1, char a2, char a3, ClassLoader cl) {
+        Class<?> aClass;
+        Method[] methods;
 
         try {
             aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
-            fields = aClass.getDeclaredFields();
             methods = aClass.getDeclaredMethods();
         } catch (Throwable e1) {
             return;
@@ -142,9 +185,11 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
                 if (sigBgFound) {
                     fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
+                            && method.getParameterTypes()[0].getName().length() == 4
                             && method.getReturnType().equals(boolean.class)
-                            && lCPatern.matcher(method.getName()).matches()
+                            && method.getName().equals(method.getName().toLowerCase())
                             && java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                            && java.lang.reflect.Modifier.isPublic(method.getModifiers())
                     ).findFirst();
 
                     sigBgFound = sigBgFound && fMethod.isPresent();
