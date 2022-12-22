@@ -2,9 +2,12 @@ package ma.wanam.youtubeadaway;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -24,6 +27,35 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
     private boolean DEBUG = BuildConfig.DEBUG;
     private volatile boolean sigAdFound = false;
     private volatile boolean sigBgFound = false;
+    private volatile boolean GeneralAdsFound = false;
+    private volatile Method findElementBlank = null;
+
+    private static final List<String> filterAds = Arrays.asList(
+            "ads_video_with_context",
+            "banner_text_icon",
+            "square_image_layout",
+            "watch_metadata_app_promo",
+            "video_display_full_layout",
+            "browsy_bar",
+            "compact_movie",
+            "horizontal_movie_shelf",
+            "movie_and_show_upsell_card",
+            "compact_tvfilm_item",
+            "video_display_full_buttoned_layout",
+            "full_width_square_image_layout",
+            "_ad_with",
+            "landscape_image_wide_button_layout",
+            "carousel_ad"
+    );
+
+    private static final List<String> filterIgnore = Arrays.asList(
+            "home_video_with_context",
+            "related_video_with_context",
+            "comment_thread",
+            "|comment.",
+            "download_",
+            "library_recent_shelf",
+            "playlist_add_to_option_wrapper");
 
     @Override
     protected Boolean doInBackground(XC_LoadPackage.LoadPackageParam... params) {
@@ -31,8 +63,9 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
         boolean foundBGClass = bruteForceBGP(cl);
         boolean foundInVideoAds = bruteForceInVideoAds(cl);
+        boolean foundGNADS = bruteForceGADS(cl);
 
-        return foundBGClass && foundInVideoAds;
+        return foundBGClass && foundInVideoAds && foundGNADS;
     }
 
     private boolean bruteForceInVideoAds(ClassLoader cl) {
@@ -173,7 +206,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
         try {
             if (!sigBgFound) {
-                Class cListenableFuture = XposedHelpers.findClass("com.google.common.util.concurrent.ListenableFuture", cl);
+                Class<?> cListenableFuture = XposedHelpers.findClass("com.google.common.util.concurrent.ListenableFuture", cl);
                 Optional<Method> fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 2
                         && method.getParameterTypes()[0].equals(Context.class)
                         && method.getParameterTypes()[1].equals(Executor.class)
@@ -205,9 +238,137 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         }
     }
 
+    private boolean bruteForceGADS(ClassLoader cl) {
+        Instant start = Instant.now();
+        start: for (char a1 = 'a'; a1 <= 'z'; a1++) {
+            for (char a2 = 'a'; a2 <= 'z'; a2++) {
+                for (char a3 = 'a'; a3 <= 'z'; a3++) {
+                    findElementBlank(a1, a2, a3, cl);
+                    if(findElementBlank != null)
+                        break start;
+                }
+            }
+        }
+
+        if (findElementBlank == null)
+            return false;
+
+        for (char a1 = 'a'; a1 <= 'z'; a1++) {
+            for (char a2 = 'a'; a2 <= 'z'; a2++) {
+                for (char a3 = 'a'; a3 <= 'z'; a3++) {
+                    findAndHookGADS(a1, a2, a3, cl);
+                    if (GeneralAdsFound) {
+                        XposedBridge.log("GeneralAds Hooked in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void findAndHookGADS(char a1, char a2, char a3, ClassLoader cl) {
+        Class<?> aClass;
+        Method[] methods;
+
+        try {
+            aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
+            methods = aClass.getDeclaredMethods();
+        } catch (Throwable e1) {
+            return;
+        }
+
+        try {
+            if (!GeneralAdsFound) {
+                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 7
+                        && method.getParameterTypes()[0].getName().length() == 3
+                        && method.getParameterTypes()[6].equals(boolean.class)
+                        && method.getParameterTypes()[5].equals(int.class)
+                        && method.getName().equals(method.getName().toLowerCase())
+                        && Modifier.isFinal(method.getModifiers())
+                        && Modifier.isPublic(method.getModifiers())
+                ).collect(Collectors.toList());
+                GeneralAdsFound= fMethods.size() == 1;
+                if (GeneralAdsFound) {
+                   Log.i("XPOSED","Hooked general ads class: " + aClass.getName() + "." + fMethods.get(0).getName());
+                   hookGeneral(fMethods.get(0),findElementBlank);
+                }
+            }
+        } catch (Throwable e) {
+            XposedBridge.log("YouTube AdAway: Failed to hook general ads class: " + aClass.getName());
+            XposedBridge.log(e);
+        }
+
+    }
+
+    private void findElementBlank(char a1, char a2, char a3, ClassLoader cl) {
+        Class<?> aClass;
+        Method[] methods;
+        String className = new StringBuffer().append(a1).append(a2).append(a3).toString();
+
+        try {
+            aClass = XposedHelpers.findClass(className, cl);
+            methods = aClass.getDeclaredMethods();
+        } catch (Throwable e1) {
+            return;
+        }
+
+        try {
+            if (findElementBlank == null) {
+                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method ->
+                        Modifier.isPublic(method.getModifiers())
+                        && Modifier.isStatic(method.getModifiers())
+                        && method.getName().length() == 2
+                        && method.getParameterTypes().length == 1
+                ).collect(Collectors.toList());
+
+                List<Method> fMethods2 = Arrays.asList(methods).parallelStream().filter(method -> Modifier.isProtected(method.getModifiers())
+                                && Modifier.isFinal(method.getModifiers())
+                                && method.getName().length() == 2
+                                && method.getParameterTypes().length == 1
+                ).collect(Collectors.toList());
+
+                findElementBlank = fMethods.size() == 1 && fMethods2.size() == 1 && methods.length == 2 ? fMethods.get(0) : null;
+            }
+        } catch (Throwable e) {
+            XposedBridge.log("YouTube AdAway: Failed to hook EmptyElement class: " + aClass.getName());
+            XposedBridge.log(e);
+        }
+    }
+
+    public void hookGeneral(Method m1,final Method m2){
+        final Optional<Method> filterMethod = Arrays.asList(m1.getParameterTypes()[1].getDeclaredMethods()).parallelStream().filter(method ->
+                        Modifier.isPublic(method.getModifiers())
+                        && Modifier.isFinal(method.getModifiers())
+                        && method.getName().length() == 1
+                        && method.getParameterTypes().length == 1
+                        && method.getParameterTypes()[0].equals(String.class)
+        ).findFirst();
+
+        if (!filterMethod.isPresent()){
+            XposedBridge.log("YouTube AdAway: Failed find filter method");
+            return;
+        }
+
+        XposedBridge.hookMethod(m1, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                String val = (String) filterMethod.get().invoke(param.args[1],"");
+                if (!TextUtils.isEmpty(val)
+                        && filterIgnore.parallelStream().noneMatch(filter-> val.contains(filter))
+                        && filterAds.parallelStream().anyMatch(filter-> val.contains(filter)))
+                {
+                    Object x = m2.invoke(null,param.args[0]);
+                    Object y = XposedHelpers.getObjectField(x,"a");
+                    param.setResult(y);
+                }
+            }
+        });
+
+    }
+
     @Override
     protected void onPostExecute(Boolean found) {
-
         if (!found) {
             XposedBridge.log("YouTube AdAway: brute force failed!");
         }
