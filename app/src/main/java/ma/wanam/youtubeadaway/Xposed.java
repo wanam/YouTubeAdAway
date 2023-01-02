@@ -13,7 +13,13 @@ public class Xposed implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
 
-        if (lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_PACKAGE)) {
+        if (lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_PACKAGE)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_KIDS_PACKAGE)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_GAMING)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_MUSIC)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_MANGO)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_TV1_PACKAGE)
+                || lpparam.packageName.equals(Constants.GOOGLE_YOUTUBE_TV2_PACKAGE)) {
             try {
                 String ytVersion = Utils.getPackageVersion(lpparam);
                 XposedBridge.log("Hooking YouTube version: " + lpparam.packageName + " " + ytVersion);

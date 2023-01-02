@@ -5,8 +5,8 @@
     <string name="module_inactive">is NOT active!\nMake sure it is enabled and REBOOT.</string>
     <string name="donate">Donate</string>
     <string name="no_thanks">No thanks</string>
-    <string name="whats_in">"What's in:\nBlock in-video ads\nEnable background play"</string>
-    <string name="whats_not">"TODO: Block ad video cards (No ETA!)\nThis project is open source, feel free to contribute."</string>
+    <string name="whats_in">"What's in:\nBlock in-video ads\nEnable background play\nBlock ad cards (BETA)"</string>
+    <string name="whats_not">"This project is open source, feel free to contribute."</string>
     <string name="donate_btc">Donate BTC</string>
     <string name="addr_copied">BTC address copied!</string>
 </resources>
