@@ -9,7 +9,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,41 +35,30 @@ public class MainActivity extends Activity {
                 + " "
                 + (XChecker.isEnabled() ? res.getString(R.string.module_active) : res
                 .getString(R.string.module_inactive));
-        TextView tvStatus = ((TextView) findViewById(id.moduleStatus));
+        TextView tvStatus = findViewById(id.moduleStatus);
         tvStatus.setText(status);
         tvStatus.setTextColor((XChecker.isEnabled() ? Color.GREEN : Color.RED));
 
-        findViewById(id.btnOK).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        findViewById(id.btnOK).setOnClickListener(v -> finish());
+
+        findViewById(id.btnDonate).setOnClickListener(v -> {
+            try {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATE_URL));
+                startActivity(browserIntent);
+            } catch (Throwable e) {
+                e.printStackTrace();
+            } finally {
                 finish();
             }
         });
 
-        findViewById(id.btnDonate).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(DONATE_URL));
-                    startActivity(browserIntent);
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                } finally {
-                    finish();
-                }
-            }
-        });
-
         TextView tv = findViewById(id.textViewBTCAdr);
-        tv.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                ClipboardManager cm = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("btc_adr", tv.getText());
-                cm.setPrimaryClip(clip);
-                Toast.makeText(getApplicationContext(), R.string.addr_copied, Toast.LENGTH_SHORT).show();
-                return false;
-            }
+        tv.setOnLongClickListener(v -> {
+            ClipboardManager cm = (ClipboardManager) getApplicationContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("btc_adr", tv.getText());
+            cm.setPrimaryClip(clip);
+            Toast.makeText(getApplicationContext(), R.string.addr_copied, Toast.LENGTH_SHORT).show();
+            return false;
         });
     }
 }

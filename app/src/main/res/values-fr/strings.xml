@@ -5,8 +5,8 @@
     <string name="module_inactive">n\'est pas actif!\nVérifier qu\'il est activé et redémarrer l\'appareil.</string>
     <string name="donate">Supporter</string>
     <string name="no_thanks">Non merci!</string>
-    <string name="whats_in">"Ce qui est implémenté:\nBloquer les annonces dans les videos\nActiver la lecture en arrière plan"</string>
-    <string name="whats_not">"Reste à faire: Bloquer les cartes d'annonces (Pas d\'ETA!)\nLe projet est open source, les contributions sont les bienvenues."</string>
+    <string name="whats_in">"Ce qui est implémenté:\nBloquer les annonces dans les videos\nActiver la lecture en arrière plan\nBloquer les cartes d'annonces (BETA)"</string>
+    <string name="whats_not">"Le projet est open source, les contributions sont les bienvenues."</string>
     <string name="donate_btc">Don en BTC</string>
     <string name="addr_copied">Adresse BTC copiée!</string>
 </resources>
