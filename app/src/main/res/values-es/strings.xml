@@ -1,12 +1,12 @@
 <resources>
 
     <string name="app_name">YouTube AdAway</string>
-    <string name="module_active">¡está activo!</string>
+    <string name="module_active">está activo!</string>
     <string name="module_inactive">NO está activo!\nAsegúrese de que esté habilitado y REINICIE.</string>
     <string name="donate">Donar</string>
     <string name="no_thanks">No, gracias</string>
-    <string name="whats_in">"Que hay:\nBloquear anuncios en video\nHabilitar reproducción en segundo plano\nBloquear tarjetas publicitarias (BETA)"</string>
+    <string name="whats_in">"Características:\nBloquea anuncios en video\nHabilita reproducción en segundo plano\nBloquea tarjetas publicitarias (BETA)"</string>
     <string name="whats_not">"Este proyecto es de código abierto, siéntase libre de contribuir."</string>
     <string name="donate_btc">Donar BTC</string>
-    <string name="addr_copied">Dirección BTC copiada!</string>
+    <string name="addr_copied">¡Dirección BTC copiada!</string>
 </resources>
