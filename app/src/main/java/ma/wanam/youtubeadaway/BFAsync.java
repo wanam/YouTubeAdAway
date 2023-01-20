@@ -1,6 +1,5 @@
 package ma.wanam.youtubeadaway;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
@@ -21,14 +20,14 @@ import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import ma.wanam.youtubeadaway.utils.Class3C;
 
 public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Boolean> {
     private boolean DEBUG = BuildConfig.DEBUG;
-    private volatile boolean sigAdFound = false;
-    private volatile boolean sigBgFound = false;
-    private volatile boolean generalAdsFound = false;
     private volatile Method emptyComponentMethod = null;
     private volatile Method fingerprintMethod = null;
+    private volatile Optional<Field> pathBuilderField = Optional.empty();
+    private XC_MethodHook.Unhook unhookFilterMethod;
 
     private static final String filterAds = new StringBuffer().append(".*(").append(String.join("|", new String[]{
             "ads_video_with_context",
@@ -46,8 +45,24 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
             "_ad_with",
             "landscape_image_wide_button_layout",
             "carousel_ad",
+            "post_base_wrapper",
+            "community_guidelines",
+            "sponsorships_comments_upsell",
+            "member_recognition_shelf",
+            "compact_banner",
             "in_feed_survey",
-            "compact_banner"
+            "medical_panel",
+            "paid_content_overlay",
+            "product_carousel",
+            "publisher_transparency_panel",
+            "single_item_information_panel",
+            "horizontal_video_shelf",
+            "post_shelf",
+            "channel_guidelines_entry_banner",
+            "official_card",
+            "cta_shelf_card",
+            "expandable_metadata",
+            "cell_divider"
     })).append(").*").toString();
 
     private static final String filterIgnore = new StringBuffer().append(".*(").append(String.join("|", new String[]{
@@ -60,99 +75,93 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
             "playlist_add_to_option_wrapper"
     })).append(").*").toString();
 
-
     @Override
     protected Boolean doInBackground(XC_LoadPackage.LoadPackageParam... params) {
         ClassLoader cl = params[0].classLoader;
 
-        boolean foundBGClass = bruteForceBGP(cl);
-        boolean foundInVideoAds = bruteForceInVideoAds(cl);
-        boolean foundGNADS = bruteForceGADS(cl);
+        XposedHelpers.findAndHookMethod("com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity", cl, "onBackPressed", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                XposedHelpers.callMethod(param.thisObject, "finish");
+            }
+        });
 
-        return foundBGClass && foundInVideoAds && foundGNADS;
+        return bruteForceAds(cl);
     }
 
-    private boolean bruteForceInVideoAds(ClassLoader cl) {
+    private boolean bruteForceAds(ClassLoader cl) {
         Instant start = Instant.now();
-        for (char a1 = 'a'; a1 <= 'z'; a1++) {
-            for (char a2 = 'a'; a2 <= 'z'; a2++) {
-                for (char a3 = 'a'; a3 <= 'z'; a3++) {
-                    findAndHookInvideoAds('a', a1, a2, a3, cl);
-                    if (sigAdFound) {
-                        XposedBridge.log("In-Video ads hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
-                        return true;
-                    }
+        boolean foundBGClass = false, foundInVideoAds = false, foundCardAds = false, skip;
+
+        Class3C heapPermutation = new Class3C();
+        while (heapPermutation.hasNext()) {
+            String clsName = heapPermutation.next();
+            skip = false;
+
+            if (foundInVideoAds && foundCardAds && foundBGClass) return true;
+
+            if (!skip && !foundInVideoAds) {
+                foundInVideoAds = findAndHookInvideoAds(new StringBuilder().append('a').append(clsName).toString(), cl);
+                if (foundInVideoAds) {
+                    skip = true;
+                    XposedBridge.log("In-Video ads hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
+                }
+            }
+
+            if (!skip && !foundBGClass) {
+                foundBGClass = findAndHookVideoBGP4C(new StringBuilder().append('a').append(clsName).toString(), cl);
+                if (foundBGClass) {
+                    skip = true;
+                    XposedBridge.log("Video BG playback hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
+                }
+            }
+
+            if (!skip && !foundCardAds) {
+                foundCardAds = findAdCardsMethods(new StringBuilder().append(clsName).toString(), cl);
+                if (foundCardAds) {
+                    hookAdCardsMethods(fingerprintMethod, emptyComponentMethod);
+                    XposedBridge.log("Ad cards hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
                 }
             }
         }
         return false;
     }
 
-    private boolean bruteForceBGP(ClassLoader cl) {
-        Instant start = Instant.now();
-
-        for (char a1 = 'a'; a1 <= 'z'; a1++) {
-            for (char a2 = 'a'; a2 <= 'z'; a2++) {
-                for (char a3 = 'a'; a3 <= 'z'; a3++) {
-                    findAndHookVideoBGP4C('a', a1, a2, a3, cl);
-                    if (sigBgFound) {
-                        XposedBridge.log("Video BG playback hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
-                        return true;
-                    }
-                }
-            }
-        }
-
-        for (char a1 = 'z'; a1 >= 'a'; a1--) {
-            for (char a2 = 'z'; a2 >= 'a'; a2--) {
-                for (char a3 = 'z'; a3 >= 'a'; a3--) {
-                    findAndHookVideoBGP3C(a1, a2, a3, cl);
-                    if (sigBgFound) {
-                        XposedBridge.log("Video BG playback hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private void findAndHookInvideoAds(char a1, char a2, char a3, char a4, ClassLoader cl) {
+    private boolean findAndHookInvideoAds(String clsName, ClassLoader cl) {
         Class<?> aClass;
         Field[] fields;
         Method[] methods;
 
         try {
-            aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).append(a4).toString(), cl);
+            aClass = XposedHelpers.findClass(clsName, cl);
             fields = aClass.getDeclaredFields();
             methods = aClass.getDeclaredMethods();
         } catch (Throwable e1) {
-            return;
+            return false;
         }
 
         try {
-            if (!sigAdFound) {
-                sigAdFound = fields.length < 10 && (int) Arrays.asList(fields).parallelStream().filter(field -> field.getType().equals(Executor.class)
-                        || field.getType().equals(LinkedBlockingQueue.class)
-                        || field.getType().equals(Runnable.class)).count() == 3;
+            boolean sigAdFound = fields.length < 10 && (int) Arrays.stream(fields).parallel().filter(field -> field.getType().equals(Executor.class)
+                    || field.getType().equals(LinkedBlockingQueue.class)
+                    || field.getType().equals(Runnable.class)).count() == 3;
 
+            if (sigAdFound) {
+                Optional<Method> fMethod = Arrays.stream(methods).parallel().filter(method -> method.getParameterTypes().length == 1
+                        && method.getParameterTypes()[0].equals(boolean.class)
+                        && method.getReturnType().equals(void.class)
+                        && java.lang.reflect.Modifier.isFinal(method.getModifiers())
+                ).findAny();
+
+                sigAdFound = sigAdFound && fMethod.isPresent();
                 if (sigAdFound) {
-                    Optional<Method> fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
-                            && method.getParameterTypes()[0].equals(boolean.class)
-                            && method.getReturnType().equals(void.class)
-                            && java.lang.reflect.Modifier.isFinal(method.getModifiers())
-                    ).findAny();
-
-                    sigAdFound = sigAdFound && fMethod.isPresent();
-                    if (sigAdFound) {
-                        XposedBridge.hookMethod(fMethod.get(), new XC_MethodHook() {
-                            @Override
-                            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                                param.args[0] = false;
-                            }
-                        });
-                        XposedBridge.log("Hooked ad class: " + aClass.getName() + "." + fMethod.get().getName());
-                    }
+                    XposedBridge.hookMethod(fMethod.get(), new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            param.args[0] = false;
+                        }
+                    });
+                    XposedBridge.log("Found ad class: " + aClass.getName() + "." + fMethod.get().getName());
+                    return true;
                 }
             }
 
@@ -160,124 +169,56 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
             XposedBridge.log("YouTube AdAway: Failed to hook in-video ads class: " + aClass.getName());
             XposedBridge.log(e);
         }
+        return false;
     }
 
-    // for YT 17.42+
-    private void findAndHookVideoBGP4C(char a0, char a1, char a2, char a3, ClassLoader cl) {
+    private boolean findAndHookVideoBGP4C(String clsName, ClassLoader cl) {
         Class<?> aClass;
         Method[] methods;
 
         try {
-            aClass = XposedHelpers.findClass(new StringBuffer().append(a0).append(a1).append(a2).append(a3).toString(), cl);
+            aClass = XposedHelpers.findClass(clsName, cl);
             methods = aClass.getDeclaredMethods();
         } catch (Throwable e1) {
-            return;
-        }
-
-        try {
-            if (!sigBgFound) {
-                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
-                        && method.getParameterTypes()[0].getName().length() == 4
-                        && method.getReturnType().equals(boolean.class)
-                        && method.getName().equals(method.getName().toLowerCase())
-                        && java.lang.reflect.Modifier.isStatic(method.getModifiers())
-                        && java.lang.reflect.Modifier.isPublic(method.getModifiers())
-                ).collect(Collectors.toList());
-
-                sigBgFound = fMethods.size() > 5;
-                if (sigBgFound) {
-                    XposedBridge.hookMethod(fMethods.get(0), XC_MethodReplacement.returnConstant(true));
-                    XposedBridge.log("Hooked bg class: " + aClass.getName() + "." + fMethods.get(0).getName());
-                }
-            }
-        } catch (Throwable e) {
-            XposedBridge.log("YouTube AdAway: Failed to hook video bg playback class: " + aClass.getName());
-            XposedBridge.log(e);
-        }
-    }
-
-    // for YT 17.41-
-    private void findAndHookVideoBGP3C(char a1, char a2, char a3, ClassLoader cl) {
-        Class<?> aClass;
-        Method[] methods;
-
-        try {
-            aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
-            methods = aClass.getDeclaredMethods();
-        } catch (Throwable e1) {
-            return;
-        }
-
-        try {
-            if (!sigBgFound) {
-                Class<?> cListenableFuture = XposedHelpers.findClass("com.google.common.util.concurrent.ListenableFuture", cl);
-                Optional<Method> fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 2
-                        && method.getParameterTypes()[0].equals(Context.class)
-                        && method.getParameterTypes()[1].equals(Executor.class)
-                        && method.getReturnType().equals(cListenableFuture)
-                        && java.lang.reflect.Modifier.isStatic(method.getModifiers())
-                ).findAny();
-
-                sigBgFound = fMethod.isPresent();
-
-                if (sigBgFound) {
-                    fMethod = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 1
-                            && method.getParameterTypes()[0].getName().length() == 4
-                            && method.getReturnType().equals(boolean.class)
-                            && method.getName().equals(method.getName().toLowerCase())
-                            && java.lang.reflect.Modifier.isStatic(method.getModifiers())
-                            && java.lang.reflect.Modifier.isPublic(method.getModifiers())
-                    ).findFirst();
-
-                    sigBgFound = sigBgFound && fMethod.isPresent();
-                    if (sigBgFound) {
-                        XposedBridge.hookMethod(fMethod.get(), XC_MethodReplacement.returnConstant(true));
-                        XposedBridge.log("Hooked bg class: " + aClass.getName() + "." + fMethod.get().getName());
-                    }
-                }
-            }
-        } catch (Throwable e) {
-            XposedBridge.log("YouTube AdAway: Failed to hook video bg playback class: " + aClass.getName());
-            XposedBridge.log(e);
-        }
-    }
-
-    private boolean bruteForceGADS(ClassLoader cl) {
-        Instant start = Instant.now();
-        start:
-        for (char a1 = 'a'; a1 <= 'z'; a1++) {
-            for (char a2 = 'a'; a2 <= 'z'; a2++) {
-                for (char a3 = 'a'; a3 <= 'z'; a3++) {
-                    findAdCardsMethods(a1, a2, a3, cl);
-                    if (emptyComponentMethod != null && fingerprintMethod != null)
-                        break start;
-                }
-            }
-        }
-
-        if (emptyComponentMethod == null || fingerprintMethod == null)
             return false;
+        }
 
-        hookAdCardsMethods(fingerprintMethod, emptyComponentMethod);
-        XposedBridge.log("Ad cards hooks applied in " + Duration.between(start, Instant.now()).getSeconds() + " seconds!");
-        generalAdsFound = true;
-        return true;
+        try {
+            List<Method> fMethods = Arrays.stream(methods).parallel().filter(method -> method.getParameterTypes().length == 1
+                    && method.getParameterTypes()[0].getName().length() == 4
+                    && method.getReturnType().equals(boolean.class)
+                    && method.getName().equals(method.getName().toLowerCase())
+                    && java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                    && java.lang.reflect.Modifier.isPublic(method.getModifiers())
+            ).collect(Collectors.toList());
+
+            if (fMethods.size() > 5) {
+                XposedBridge.hookMethod(fMethods.get(0), XC_MethodReplacement.returnConstant(true));
+                XposedBridge.log("Found bg class: " + aClass.getName() + "." + fMethods.get(0).getName());
+                return true;
+            }
+
+        } catch (Throwable e) {
+            XposedBridge.log("YouTube AdAway: Failed to hook video bg playback class: " + aClass.getName());
+            XposedBridge.log(e);
+        }
+        return false;
     }
 
-    private void findAdCardsMethods(char a1, char a2, char a3, ClassLoader cl) {
+    private boolean findAdCardsMethods(String clsName, ClassLoader cl) {
         Class<?> aClass;
         Method[] methods;
 
         try {
-            aClass = XposedHelpers.findClass(new StringBuffer().append(a1).append(a2).append(a3).toString(), cl);
+            aClass = XposedHelpers.findClass(clsName, cl);
             methods = aClass.getDeclaredMethods();
         } catch (Throwable e1) {
-            return;
+            return false;
         }
 
         try {
             if (fingerprintMethod == null) {
-                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method -> method.getParameterTypes().length == 7
+                List<Method> fMethods = Arrays.stream(methods).parallel().filter(method -> method.getParameterTypes().length == 7
                         && method.getParameterTypes()[0].getName().length() == 3
                         && method.getParameterTypes()[6].equals(boolean.class)
                         && method.getParameterTypes()[5].equals(int.class)
@@ -289,7 +230,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
                 if (fMethods.size() == 1) {
                     fingerprintMethod = fMethods.size() == 1 ? fMethods.get(0) : null;
                     XposedBridge.log("Found ad cards class: " + aClass.getName() + "." + fMethods.get(0).getName());
-                    return;
+                    return fingerprintMethod != null && emptyComponentMethod != null;
                 }
             }
         } catch (Throwable e) {
@@ -299,13 +240,13 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
         try {
             if (emptyComponentMethod == null) {
-                List<Method> fMethods = Arrays.asList(methods).parallelStream().filter(method ->
+                List<Method> fMethods = Arrays.stream(methods).parallel().filter(method ->
                         Modifier.isPublic(method.getModifiers())
                                 && Modifier.isStatic(method.getModifiers())
                                 && method.getParameterTypes().length == 1
                 ).collect(Collectors.toList());
 
-                List<Method> fMethods2 = Arrays.asList(methods).parallelStream().filter(method -> Modifier.isProtected(method.getModifiers())
+                List<Method> fMethods2 = Arrays.stream(methods).parallel().filter(method -> Modifier.isProtected(method.getModifiers())
                         && Modifier.isFinal(method.getModifiers())
                         && method.getParameterTypes().length == 1
                 ).collect(Collectors.toList());
@@ -313,39 +254,50 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
                 if (fMethods.size() == 1 && fMethods2.size() == 1 && methods.length == 2) {
                     emptyComponentMethod = fMethods.get(0);
                     XposedBridge.log("Found emptyComponent class: " + aClass.getName() + "." + fMethods.get(0).getName());
+                    return fingerprintMethod != null && emptyComponentMethod != null;
                 }
             }
         } catch (Throwable e) {
             XposedBridge.log("YouTube AdAway: Failed to hook EmptyElement class: " + aClass.getName());
             XposedBridge.log(e);
         }
+        return false;
     }
 
-    private void hookAdCardsMethods(Method cMethod, final Method emptyMethod) {
-        final Optional<Method> filterMethod = Arrays.asList(cMethod.getParameterTypes()[1].getDeclaredMethods()).parallelStream().filter(method ->
-                Modifier.isPublic(method.getModifiers())
-                        && Modifier.isFinal(method.getModifiers())
-                        && method.getName().length() == 1
-                        && method.getParameterTypes().length == 1
-                        && method.getParameterTypes()[0].equals(String.class)
-        ).findFirst();
+    private void hookAdCardsMethods(Method fingerprintMethod, final Method emptyComponentMethod) {
 
-        if (!filterMethod.isPresent()) {
-            XposedBridge.log("YouTube AdAway: Failed to find filter method!");
-            return;
-        }
+        try {
+            unhookFilterMethod = XposedBridge.hookMethod(fingerprintMethod, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
+                    if (!pathBuilderField.isPresent()) {
+                        pathBuilderField = Arrays.stream(param.args[1].getClass().getDeclaredFields()).parallel().filter(field ->
+                                field.getType().equals(StringBuilder.class)
+                                        && Modifier.isFinal(field.getModifiers())
+                                        && Modifier.isPublic(field.getModifiers())
+                        ).findAny();
+                    }
 
-        XposedBridge.hookMethod(cMethod, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
-                String val = (String) filterMethod.get().invoke(param.args[1], "");
-                if (!TextUtils.isEmpty(val) && !val.matches(filterIgnore) && val.matches(filterAds)) {
-                    Object x = emptyMethod.invoke(null, param.args[0]);
-                    Object y = XposedHelpers.getObjectField(x, "a");
-                    param.setResult(y);
+                    if (pathBuilderField.isPresent()) {
+                        // Get template path
+                        String pathBuilder = XposedHelpers.getObjectField(param.args[1], pathBuilderField.get().getName()).toString();
+                        if (!TextUtils.isEmpty(pathBuilder) && !pathBuilder.matches(filterIgnore) && pathBuilder.matches(filterAds)) {
+                            // Create emptyComponent from current componentContext
+                            Object x = emptyComponentMethod.invoke(null, param.args[0]);
+                            // Get created emptyComponent
+                            Object y = XposedHelpers.getObjectField(x, "a");
+                            param.setResult(y);
+                        }
+                    } else {
+                        XposedBridge.log("Unable to find template's pathBuilder");
+                        unhookFilterMethod.unhook();
+                    }
                 }
-            }
-        });
+            });
+        } catch (Throwable e) {
+            XposedBridge.log("YouTube AdAway: Error hooking AdCards!");
+            XposedBridge.log(e);
+        }
     }
 
     @Override
