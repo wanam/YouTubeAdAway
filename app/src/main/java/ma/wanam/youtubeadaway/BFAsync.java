@@ -1,6 +1,7 @@
 package ma.wanam.youtubeadaway;
 
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.text.TextUtils;
 
 import java.lang.reflect.Field;
@@ -28,6 +29,15 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
     private volatile Method fingerprintMethod = null;
     private volatile Optional<Field> pathBuilderField = Optional.empty();
     private XC_MethodHook.Unhook unhookFilterMethod;
+    private volatile boolean isAtTopOfView = true;
+    private Handler handler;
+
+    public Handler getHandler() {
+        if (handler == null) {
+            handler = new Handler();
+        }
+        return handler;
+    }
 
     private static final String filterAds = new StringBuffer().append(".*(").append(String.join("|", new String[]{
             "ads_video_with_context",
@@ -82,9 +92,26 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         XposedHelpers.findAndHookMethod("com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity", cl, "onBackPressed", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                XposedHelpers.callMethod(param.thisObject, "finish");
+                if (isAtTopOfView) {
+                    XposedHelpers.callMethod(param.thisObject, "finish");
+                } else {
+                    getHandler().removeCallbacksAndMessages(null);
+                    getHandler().postDelayed(() -> isAtTopOfView = true, 1000);
+                }
             }
         });
+
+        XposedHelpers.findAndHookMethod("android.support.v7.widget.RecyclerView", cl, "stopNestedScroll",
+                new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        getHandler().removeCallbacksAndMessages(null);
+                        isAtTopOfView = false;
+                        getHandler().postDelayed(
+                                () -> isAtTopOfView = !(boolean) XposedHelpers.callMethod(param.thisObject, "canScrollVertically", -1)
+                                , 1000);
+                    }
+                });
 
         return bruteForceAds(cl);
     }
@@ -269,7 +296,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
         try {
             unhookFilterMethod = XposedBridge.hookMethod(fingerprintMethod, new XC_MethodHook() {
                 @Override
-                protected void afterHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
+                protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
                     if (!pathBuilderField.isPresent()) {
                         pathBuilderField = Arrays.stream(param.args[1].getClass().getDeclaredFields()).parallel().filter(field ->
                                 field.getType().equals(StringBuilder.class)
