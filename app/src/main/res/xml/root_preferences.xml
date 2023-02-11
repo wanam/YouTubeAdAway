@@ -1,0 +1,51 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/app_name">
+
+        <Preference
+            app:key="status"
+            app:title="@string/module_status"></Preference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/ads_removal">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="hide_ad_cards"
+            app:summary="@string/ad_cards_summary"
+            app:title="@string/ad_cards_removal" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/bg_playback">
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="enable_bg_playback"
+            app:summary="@string/bg_playback_summary"
+            app:title="@string/bg_playback" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/donate">
+
+        <Preference
+            app:key="donate_pp"
+            app:title="@string/donate_pp_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://www.paypal.me/Wanam" />
+        </Preference>
+
+        <Preference
+            android:selectable="true"
+            app:enableCopying="true"
+            app:key="donate_btc"
+            app:summary="3NhzLDbXqpi1nDjhfSyEfw7p1kyXGneCC8"
+            app:title="@string/donate_btc_title" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
