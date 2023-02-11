@@ -1,12 +1,16 @@
 <resources>
 
     <string name="app_name">YouTube AdAway</string>
-    <string name="module_active">is active!</string>
-    <string name="module_inactive">is NOT active!\nMake sure it is enabled and REBOOT.</string>
+    <string name="module_active">The module is active!</string>
+    <string name="module_inactive">The module is NOT active!\nMake sure it is enabled and REBOOT.</string>
     <string name="donate">Donate</string>
-    <string name="no_thanks">No thanks</string>
-    <string name="whats_in">"What's in:\nBlock in-video ads\nEnable background play\nBlock ad cards (BETA)"</string>
-    <string name="whats_not">"This project is open source, feel free to contribute."</string>
-    <string name="donate_btc">Donate BTC</string>
-    <string name="addr_copied">BTC address copied!</string>
+    <string name="donate_btc_title">Donate BTC</string>
+    <string name="donate_pp_title">Donate through Paypal</string>
+    <string name="ads_removal">Ads removal</string>
+    <string name="ad_cards_summary">This is experimental and may break back gesture and pull down to refresh feature!</string>
+    <string name="ad_cards_removal">Remove ad cards</string>
+    <string name="module_status">Module status</string>
+    <string name="bg_playback">Background playback</string>
+    <string name="bg_playback_summary">Enable video background playback</string>
+
 </resources>

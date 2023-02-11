@@ -4,9 +4,13 @@
     <string name="module_active">est actif!</string>
     <string name="module_inactive">n\'est pas actif!\nVérifier qu\'il est activé et redémarrer l\'appareil.</string>
     <string name="donate">Supporter</string>
-    <string name="no_thanks">Non merci!</string>
-    <string name="whats_in">"Ce qui est implémenté:\nBloquer les annonces dans les videos\nActiver la lecture en arrière plan\nBloquer les cartes d'annonces (BETA)"</string>
-    <string name="whats_not">"Le projet est open source, les contributions sont les bienvenues."</string>
-    <string name="donate_btc">Don en BTC</string>
-    <string name="addr_copied">Adresse BTC copiée!</string>
+    <string name="donate_btc_title">Supporter en BTC</string>
+    <string name="donate_pp_title">Supporter via Paypal</string>
+    <string name="ads_removal">Supression d\'annonces publicitaires</string>
+    <string name="ad_cards_summary"> Fonctionnalité expérimentale! elle peut casser la navigation de retour et le rafraichissement de la page!</string>
+    <string name="ad_cards_removal">Supprimer les cartes de publicité</string>
+    <string name="module_status">Etat du module</string>
+    <string name="bg_playback">Lecture en arrière plan</string>
+    <string name="bg_playback_summary">Activer la lecture en arrière plan</string>
+
 </resources>

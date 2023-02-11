@@ -1,14 +1,17 @@
 package ma.wanam.youtubeadaway;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodReplacement;
+import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import ma.wanam.youtubeadaway.utils.Constants;
 import ma.wanam.youtubeadaway.utils.Utils;
 
-public class Xposed implements IXposedHookLoadPackage {
+public class Xposed implements IXposedHookLoadPackage, IXposedHookZygoteInit {
+    public static XSharedPreferences prefs;
 
     @Override
     public void handleLoadPackage(LoadPackageParam lpparam) throws Throwable {
@@ -23,6 +26,11 @@ public class Xposed implements IXposedHookLoadPackage {
             try {
                 String ytVersion = Utils.getPackageVersion(lpparam);
                 XposedBridge.log("Hooking YouTube version: " + lpparam.packageName + " " + ytVersion);
+
+                if (prefs != null) {
+                    prefs.reload();
+                } else
+                    XposedBridge.log("CANNOT read module preferences!!!");
 
                 new BFAsync().execute(lpparam);
             } catch (Throwable t) {
@@ -39,5 +47,10 @@ public class Xposed implements IXposedHookLoadPackage {
                 XposedBridge.log(t);
             }
         }
+    }
+
+    @Override
+    public void initZygote(StartupParam startupParam) throws Throwable {
+        prefs = new XSharedPreferences(BuildConfig.APPLICATION_ID);
     }
 }

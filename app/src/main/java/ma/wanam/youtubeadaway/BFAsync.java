@@ -22,6 +22,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import ma.wanam.youtubeadaway.utils.Class3C;
+import ma.wanam.youtubeadaway.utils.Constants;
 
 public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Boolean> {
     private boolean DEBUG = BuildConfig.DEBUG;
@@ -55,24 +56,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
             "_ad_with",
             "landscape_image_wide_button_layout",
             "carousel_ad",
-            "post_base_wrapper",
-            "community_guidelines",
-            "sponsorships_comments_upsell",
-            "member_recognition_shelf",
-            "compact_banner",
-            "in_feed_survey",
-            "medical_panel",
-            "paid_content_overlay",
-            "product_carousel",
-            "publisher_transparency_panel",
-            "single_item_information_panel",
-            "horizontal_video_shelf",
-            "post_shelf",
-            "channel_guidelines_entry_banner",
-            "official_card",
-            "cta_shelf_card",
-            "expandable_metadata",
-            "cell_divider"
+            "paid_content_overlay"
     })).append(").*").toString();
 
     private static final String filterIgnore = new StringBuffer().append(".*(").append(String.join("|", new String[]{
@@ -89,36 +73,41 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
     protected Boolean doInBackground(XC_LoadPackage.LoadPackageParam... params) {
         ClassLoader cl = params[0].classLoader;
 
-        XposedHelpers.findAndHookMethod("com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity", cl, "onBackPressed", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (isAtTopOfView) {
-                    XposedHelpers.callMethod(param.thisObject, "finish");
-                } else {
-                    getHandler().removeCallbacksAndMessages(null);
-                    getHandler().postDelayed(() -> isAtTopOfView = true, 1000);
-                }
-            }
-        });
-
-        XposedHelpers.findAndHookMethod("android.support.v7.widget.RecyclerView", cl, "stopNestedScroll",
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+        if (params[0].packageName.equals(Constants.GOOGLE_YOUTUBE_PACKAGE)) {
+            XposedHelpers.findAndHookMethod("com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity", cl, "onBackPressed", new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    if (isAtTopOfView) {
+                        XposedHelpers.callMethod(param.thisObject, "finish");
+                    } else {
                         getHandler().removeCallbacksAndMessages(null);
-                        isAtTopOfView = false;
-                        getHandler().postDelayed(
-                                () -> isAtTopOfView = !(boolean) XposedHelpers.callMethod(param.thisObject, "canScrollVertically", -1)
-                                , 1000);
+                        getHandler().postDelayed(() -> isAtTopOfView = true, 1000);
                     }
-                });
+                }
+            });
+
+            XposedHelpers.findAndHookMethod("android.support.v7.widget.RecyclerView", cl, "stopNestedScroll",
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            getHandler().removeCallbacksAndMessages(null);
+                            isAtTopOfView = false;
+                            getHandler().postDelayed(
+                                    () -> isAtTopOfView = !(boolean) XposedHelpers.callMethod(param.thisObject, "canScrollVertically", -1)
+                                    , 1000);
+                        }
+                    });
+        }
 
         return bruteForceAds(cl);
     }
 
     private boolean bruteForceAds(ClassLoader cl) {
         Instant start = Instant.now();
-        boolean foundBGClass = false, foundInVideoAds = false, foundCardAds = false, skip;
+        boolean foundBGClass = !Xposed.prefs.getBoolean("enable_bg_playback", true),
+                foundInVideoAds = false,
+                foundCardAds = !Xposed.prefs.getBoolean("hide_ad_cards", false),
+                skip;
 
         Class3C heapPermutation = new Class3C();
         while (heapPermutation.hasNext()) {
