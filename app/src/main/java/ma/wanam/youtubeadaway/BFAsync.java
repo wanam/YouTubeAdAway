@@ -73,7 +73,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
     protected Boolean doInBackground(XC_LoadPackage.LoadPackageParam... params) {
         ClassLoader cl = params[0].classLoader;
 
-        if (params[0].packageName.equals(Constants.GOOGLE_YOUTUBE_PACKAGE)) {
+        if (params[0].packageName.equals(Constants.GOOGLE_YOUTUBE_PACKAGE) && Xposed.prefs.getBoolean("hide_ad_cards", false)) {
             XposedHelpers.findAndHookMethod("com.google.android.apps.youtube.app.watchwhile.WatchWhileActivity", cl, "onBackPressed", new XC_MethodHook() {
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
