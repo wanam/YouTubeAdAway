@@ -201,6 +201,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
 
         try {
             List<Method> fMethods = Arrays.stream(methods).parallel().filter(method -> method.getParameterTypes().length == 1
+                    && method.getName().length() == 1
                     && method.getParameterTypes()[0].getName().length() == 4
                     && method.getReturnType().equals(boolean.class)
                     && method.getName().equals(method.getName().toLowerCase())
