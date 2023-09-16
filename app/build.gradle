@@ -9,8 +9,8 @@ android {
         applicationId "ma.wanam.youtubeadaway"
         minSdk 27
         targetSdk 31
-        versionCode 507
-        versionName "5.0.7"
+        versionCode 510
+        versionName "5.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
