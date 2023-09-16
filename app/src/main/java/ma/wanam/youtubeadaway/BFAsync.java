@@ -105,7 +105,7 @@ public class BFAsync extends AsyncTask<XC_LoadPackage.LoadPackageParam, Void, Bo
     private boolean bruteForceAds(ClassLoader cl) {
         Instant start = Instant.now();
         boolean foundBGClass = !Xposed.prefs.getBoolean("enable_bg_playback", true),
-                foundInVideoAds = false,
+                foundInVideoAds = !Xposed.prefs.getBoolean("hide_invideo_ads", true),
                 foundCardAds = !Xposed.prefs.getBoolean("hide_ad_cards", false),
                 skip;
 

@@ -12,6 +12,12 @@
     <PreferenceCategory app:title="@string/ads_removal">
 
         <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="hide_invideo_ads"
+            app:summary="@string/invideo_ads_summary"
+            app:title="@string/invideo_ads_removal" />
+
+        <SwitchPreferenceCompat
             app:defaultValue="false"
             app:key="hide_ad_cards"
             app:summary="@string/ad_cards_summary"

@@ -7,6 +7,8 @@
     <string name="donate_btc_title">Donate BTC</string>
     <string name="donate_pp_title">Donate through Paypal</string>
     <string name="ads_removal">Ads removal</string>
+    <string name="invideo_ads_summary">Disable playing ads while watching a video</string>
+    <string name="invideo_ads_removal">Disable InVideo ads</string>
     <string name="ad_cards_summary">This is experimental and may break back gesture and pull down to refresh feature!</string>
     <string name="ad_cards_removal">Remove ad cards</string>
     <string name="module_status">Module status</string>
