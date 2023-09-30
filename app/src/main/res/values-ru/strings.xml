@@ -1,0 +1,18 @@
+<resources>
+
+    <string name="app_name">YouTube AdAway</string>
+    <string name="module_active">Модуль активирован!</string>
+    <string name="module_inactive">Модуль НЕ активирован!\nУбедитесь что он включен и ПЕРЕЗАГРУЗИТЕСЬ.</string>
+    <string name="donate">Поддержать проект</string>
+    <string name="donate_btc_title">Донат через BTC</string>
+    <string name="donate_pp_title">Донат через Paypal</string>
+    <string name="ads_removal">Удвление рекламы</string>
+    <string name="invideo_ads_summary">Отключить рекламу в видеороликах</string>
+    <string name="invideo_ads_removal">Реклама в видео</string>
+    <string name="ad_cards_summary">Это экспериментальная функция, которая может привести к сбоям жеста назад и жеста вниз для обновления!</string>
+    <string name="ad_cards_removal">Удалить рекламные баннеры</string>
+    <string name="module_status">Статус модуля</string>
+    <string name="bg_playback">Фоновое воспроизведение</string>
+    <string name="bg_playback_summary">Включить фоновое вопрос заведение</string>
+
+</resources>
